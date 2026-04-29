@@ -1,0 +1,46 @@
+{
+  "schedule": {
+    "timezone": "America/New_York",
+    "working_days": [1, 2, 3, 4, 5],
+    "working_hours": { "start": "08:00", "end": "17:00" },
+    "slot_granularity_minutes": 30,
+    "lead_time_hours": 48,
+    "max_advance_days": 60,
+    "buffer_minutes_between_shoots": 60
+  },
+  "duration_minutes": {
+    "packages": {
+      "photo_essentials": 60,
+      "photo_standard": 90,
+      "photo_premium": 120
+    },
+    "addons": {
+      "addon_walkthrough_social": 30,
+      "addon_walkthrough_full": 45,
+      "addon_walkthrough_combo": 60,
+      "addon_drone_stills": 15,
+      "addon_drone_video": 20,
+      "addon_drone_video_bundled": 0,
+      "addon_floor_plan": 20
+    }
+  },
+  "service_area": {
+    "free_radius_miles": 50,
+    "max_radius_miles": 50,
+    "auto_flag_over_max": true
+  },
+  "hold_minutes_pending_payment": 15,
+  "operator": {
+    "name": "Bryan Burton",
+    "email": "bryan@digflat.com",
+    "phone": "",
+    "base_zip": "44903"
+  },
+  "branding": {
+    "brand": "DigFlat Media",
+    "site_url": "https://digflatmedia.com",
+    "tagline": "Real Estate Photography & Videography",
+    "primary_color": "#1a1a1a",
+    "accent_color": "#c9a55a"
+  }
+}

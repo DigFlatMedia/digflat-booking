@@ -1,0 +1,7 @@
+<%- include('_header', { title: 'Error' }) %>
+<div class="error-page">
+  <h1>Something went wrong</h1>
+  <p><%= message || 'An unexpected error occurred.' %></p>
+  <a href="/" class="btn-primary">Back to home →</a>
+</div>
+<%- include('_footer') %>

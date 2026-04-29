@@ -1,0 +1,78 @@
+<%- include('_admin_header', { title: 'Bookings' }) %>
+
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Bookings</h1>
+  <div class="flex items-center gap-3">
+    <% if (!googleConnected) { %>
+    <a href="/admin/google" class="text-sm bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">⚠ Google Calendar not connected</a>
+    <% } %>
+    <% if (!waveConfigured) { %>
+    <span class="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full">⚠ Wave not configured</span>
+    <% } %>
+    <a href="/admin/export.csv" class="text-sm text-blue-600 underline">Export CSV</a>
+  </div>
+</div>
+
+<%
+const statusOrder = ['awaiting_approval','pending','confirmed','completed','cancelled','expired'];
+const grouped = {};
+for (const b of bookings) {
+  (grouped[b.status] = grouped[b.status] || []).push(b);
+}
+const sections = [
+  { key: 'awaiting_approval', label: 'Awaiting Approval', color: 'bg-orange-100 text-orange-800' },
+  { key: 'pending',           label: 'Pending Payment',   color: 'bg-yellow-100 text-yellow-800' },
+  { key: 'confirmed',         label: 'Confirmed',          color: 'bg-green-100 text-green-800' },
+  { key: 'completed',         label: 'Completed',          color: 'bg-blue-100 text-blue-800' },
+  { key: 'cancelled',         label: 'Cancelled',          color: 'bg-gray-100 text-gray-600' },
+  { key: 'expired',           label: 'Expired',            color: 'bg-gray-100 text-gray-400' },
+];
+%>
+
+<% for (const sec of sections) { %>
+  <% if (!grouped[sec.key]?.length) continue; %>
+  <div class="mb-8">
+    <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-2"><%= sec.label %> (<%= grouped[sec.key].length %>)</h2>
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 border-b">
+          <tr>
+            <th class="text-left px-4 py-2">Client</th>
+            <th class="text-left px-4 py-2">Property</th>
+            <th class="text-left px-4 py-2">Shoot Date</th>
+            <th class="text-left px-4 py-2">Total</th>
+            <th class="text-left px-4 py-2">Status</th>
+            <th class="text-left px-4 py-2"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y">
+          <% for (const b of grouped[sec.key]) { %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3">
+              <div class="font-medium"><%= b.customer.name %></div>
+              <div class="text-gray-400 text-xs"><%= b.customer.email %></div>
+            </td>
+            <td class="px-4 py-3 text-gray-600 max-w-xs truncate"><%= b.property.address %></td>
+            <td class="px-4 py-3 text-gray-600 whitespace-nowrap">
+              <%= b.schedule?.startISO ? new Date(b.schedule.startISO).toLocaleDateString('en-US',{timeZone:b.schedule.timezone||'America/New_York',month:'short',day:'numeric',year:'numeric'}) : '—' %>
+            </td>
+            <td class="px-4 py-3 font-medium">$<%= b.quote.total.toFixed(2) %></td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-medium <%= sec.color %>"><%= sec.label %></span>
+            </td>
+            <td class="px-4 py-3">
+              <a href="/admin/bookings/<%= b.id %>" class="text-blue-600 hover:underline">View →</a>
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } %>
+
+<% if (!bookings.length) { %>
+<div class="text-center py-16 text-gray-400">No bookings yet.</div>
+<% } %>
+
+<%- include('_admin_footer') %>

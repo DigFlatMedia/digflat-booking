@@ -1,0 +1,139 @@
+<%- include('_header', { title: 'Schedule & Details' }) %>
+
+<div class="page-hero">
+  <h1>Schedule Your Shoot</h1>
+</div>
+
+<div class="steps">
+  <span class="step done">1. Choose Services</span>
+  <span class="step active">2. Pick Date &amp; Time</span>
+  <span class="step">3. Your Info</span>
+  <span class="step">4. Pay &amp; Confirm</span>
+</div>
+
+<form id="book-form" action="/book" method="POST" class="book-form" novalidate>
+
+  <!-- Hidden selection state -->
+  <input type="hidden" name="packageId" value="<%= packageId %>">
+  <% for (const a of addonIds) { %>
+  <input type="hidden" name="addonIds" value="<%= a %>">
+  <% } %>
+  <input type="hidden" name="rush" value="<%= rush ? '1' : '0' %>">
+  <input type="hidden" name="startISO" id="startISO" value="">
+  <!-- Honeypot -->
+  <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+
+  <div class="book-layout">
+
+    <!-- Left: calendar + slots -->
+    <div class="book-left">
+      <section class="form-section">
+        <h2>Select Date</h2>
+        <div id="calendar-container">
+          <div class="cal-nav">
+            <button type="button" id="cal-prev" class="cal-arrow">&#8592;</button>
+            <span id="cal-month-label" class="cal-month"></span>
+            <button type="button" id="cal-next" class="cal-arrow">&#8594;</button>
+          </div>
+          <div id="calendar-grid" class="cal-grid"></div>
+        </div>
+      </section>
+
+      <section class="form-section" id="slots-section" style="display:none">
+        <h2>Available Times</h2>
+        <div id="slots-grid" class="slots-grid"></div>
+        <p id="slots-empty" class="slots-empty" style="display:none">No availability on this date. Try another day.</p>
+      </section>
+    </div>
+
+    <!-- Right: contact form + order summary -->
+    <div class="book-right">
+
+      <div class="order-summary card">
+        <h3>Order Summary</h3>
+        <% for (const li of quote.lineItems) { %>
+        <div class="os-row"><span><%= li.name %></span><span>$<%= li.amount.toFixed(2) %></span></div>
+        <% } %>
+        <% if (quote.tax > 0) { %>
+        <div class="os-row os-tax"><span>OH Sales Tax (<%= (quote.taxRate * 100).toFixed(1) %>%)</span><span>$<%= quote.tax.toFixed(2) %></span></div>
+        <% } %>
+        <div class="os-row os-total"><span>Total Due</span><span>$<%= quote.total.toFixed(2) %></span></div>
+        <p class="os-note">Full payment due at booking via Wave invoice.</p>
+      </div>
+
+      <section class="form-section card">
+        <h2>Your Information</h2>
+
+        <div class="field-group">
+          <label>Full Name *</label>
+          <input type="text" name="name" required value="<%= prefill?.name || '' %>" placeholder="Jane Smith">
+        </div>
+        <div class="field-group">
+          <label>Email *</label>
+          <input type="email" name="email" required value="<%= sessionEmail || prefill?.email || '' %>" placeholder="jane@brokerage.com">
+        </div>
+        <div class="field-group">
+          <label>Phone *</label>
+          <input type="tel" name="phone" required value="<%= prefill?.phone || '' %>" placeholder="(419) 555-0100">
+        </div>
+        <div class="field-group">
+          <label>Brokerage</label>
+          <input type="text" name="brokerage" value="<%= prefill?.brokerage || '' %>" placeholder="RE/MAX, Coldwell Banker…">
+        </div>
+
+        <h2 style="margin-top:24px">Property</h2>
+        <div class="field-group">
+          <label>Property Address *</label>
+          <input type="text" name="propertyAddress" required placeholder="123 Main St, Lexington OH 44904">
+        </div>
+        <div class="field-group">
+          <label>Square Footage *</label>
+          <input type="number" name="propertySqft" required placeholder="2200" min="0">
+        </div>
+        <div class="field-group">
+          <label>Lockbox / Access Instructions *</label>
+          <textarea name="accessInstructions" rows="2" placeholder="Lockbox on front door, code 1234…" required></textarea>
+        </div>
+        <div class="field-group">
+          <label>Seller Contact (name &amp; phone)</label>
+          <input type="text" name="sellerContact" placeholder="Tom Seller — (419) 555-0200">
+        </div>
+        <div class="field-group">
+          <label>Notes for photographer</label>
+          <textarea name="notes" rows="2" placeholder="Gate code, special requests, parking notes…"></textarea>
+        </div>
+      </section>
+
+      <div class="policy-block">
+        <h3>Payment &amp; Policies</h3>
+        <ul>
+          <li>Full payment due at booking via Wave invoice.</li>
+          <li>Free cancellation 48+ hours before shoot.</li>
+          <li>$50 fee for cancellations within 24–48 hours.</li>
+          <li>Photos delivered within 24 hours of shoot.</li>
+        </ul>
+        <label class="agree-label">
+          <input type="checkbox" name="agreed" required id="agree-check">
+          I have read and agree to the <a href="https://digflatmedia.com" target="_blank">booking policies</a>.
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary btn-block" id="submit-btn" disabled>
+        Review &amp; Pay →
+      </button>
+      <p id="submit-hint" class="submit-hint">Select a date and time to continue.</p>
+    </div>
+
+  </div><!-- /.book-layout -->
+</form>
+
+<script>
+window.BOOK_CONFIG = {
+  packageId: '<%= packageId %>',
+  addonIds: <%- JSON.stringify(addonIds) %>,
+  minDate: '<%= minDate %>',
+  maxDate: '<%= maxDate %>',
+  apiBase: '',
+};
+</script>
+<%- include('_footer') %>

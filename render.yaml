@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: digflat-booking
+    runtime: node
+    plan: starter
+    region: ohio
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATA_DIR
+        value: /var/data
+      - key: PUBLIC_URL
+        value: https://book.digflatmedia.com
+      - key: OPERATOR_EMAIL
+        value: bryan@digflat.com
+      - key: OPERATOR_NAME
+        value: Bryan Burton
+      - key: GOOGLE_CALENDAR_ID
+        value: primary
+      - key: RESEND_FROM
+        value: onboarding@resend.dev
+      - key: ADMIN_USER
+        value: bryan
+      - key: ADMIN_PASS
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: RESEND_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: WAVE_API_TOKEN
+        sync: false
+      - key: WAVE_BUSINESS_ID
+        sync: false
+      - key: WAVE_WEBHOOK_SECRET
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof title !== 'undefined' ? title + ' — ' : '' %>DigFlat Media Booking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="/public/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="/" class="logo">
+      <span class="logo-mark">DF</span>
+      <span class="logo-text">DigFlat Media</span>
+    </a>
+    <nav class="site-nav">
+      <% if (locals.session) { %>
+        <a href="/account">My Bookings</a>
+        <a href="/account/logout">Sign out</a>
+      <% } else { %>
+        <a href="/account/login">Sign in</a>
+      <% } %>
+    </nav>
+  </header>
+  <main class="main-content">

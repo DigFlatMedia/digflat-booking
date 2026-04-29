@@ -1,0 +1,224 @@
+{
+  "business": {
+    "brand": "DigFlat Media",
+    "service_line": "Real Estate Photography & Videography",
+    "base_location": { "city": "Mansfield", "state": "OH", "zip": "44903" },
+    "service_radius_miles": 50,
+    "currency": "USD",
+    "version": "1.0",
+    "last_updated": "2026-04-28"
+  },
+  "photo_packages": [
+    {
+      "id": "photo_essentials",
+      "name": "Essentials",
+      "price": 175,
+      "sqft_min": 0,
+      "sqft_max": 1500,
+      "photo_count": 25,
+      "turnaround_hours": 24,
+      "includes": [
+        "25 high-resolution photos",
+        "MLS-sized and full-resolution delivery",
+        "Blue sky guarantee",
+        "Professional HDR editing",
+        "24-hour turnaround",
+        "Branded gallery with property website"
+      ],
+      "description": "Perfect for condos, smaller homes, and starter listings."
+    },
+    {
+      "id": "photo_standard",
+      "name": "Standard",
+      "price": 225,
+      "sqft_min": 1501,
+      "sqft_max": 3000,
+      "photo_count": 35,
+      "turnaround_hours": 24,
+      "includes": [
+        "35 high-resolution photos",
+        "MLS-sized and full-resolution delivery",
+        "Blue sky guarantee",
+        "Professional HDR editing",
+        "24-hour turnaround",
+        "Branded gallery with property website"
+      ],
+      "description": "The bread-and-butter package for the majority of listings.",
+      "is_default": true
+    },
+    {
+      "id": "photo_premium",
+      "name": "Premium",
+      "price": 300,
+      "sqft_min": 3001,
+      "sqft_max": null,
+      "photo_count": 50,
+      "turnaround_hours": 24,
+      "includes": [
+        "50 high-resolution photos",
+        "MLS-sized and full-resolution delivery",
+        "Blue sky guarantee",
+        "Professional HDR editing",
+        "24-hour turnaround",
+        "Branded gallery with property website"
+      ],
+      "description": "For larger homes, luxury listings, and properties needing extensive coverage."
+    }
+  ],
+  "add_ons": [
+    {
+      "id": "addon_walkthrough_social",
+      "category": "video",
+      "name": "Social Walkthrough Video",
+      "price": 250,
+      "duration_seconds": "60-90",
+      "includes": [
+        "Vertical (9:16) cut for Reels/TikTok/Stories",
+        "Horizontal (16:9) cut for YouTube/Facebook",
+        "Licensed background music",
+        "Color graded",
+        "Branded intro/outro"
+      ],
+      "description": "Short cinematic walkthrough optimized for social media."
+    },
+    {
+      "id": "addon_walkthrough_full",
+      "category": "video",
+      "name": "Full Cinematic Walkthrough",
+      "price": 400,
+      "duration_seconds": "120-180",
+      "includes": [
+        "2-3 minute cinematic edit",
+        "Horizontal master file (16:9)",
+        "Licensed background music",
+        "Color graded",
+        "Stabilized gimbal footage",
+        "Optional voiceover script (you provide voice talent)"
+      ],
+      "description": "Full-length showcase video for premium listings."
+    },
+    {
+      "id": "addon_walkthrough_combo",
+      "category": "video",
+      "name": "Walkthrough Video Combo",
+      "price": 550,
+      "discount_from_individual": 100,
+      "includes": [
+        "Social walkthrough (vertical + horizontal)",
+        "Full cinematic walkthrough",
+        "All deliverables from both individual packages"
+      ],
+      "description": "Both video packages bundled at a discount."
+    },
+    {
+      "id": "addon_drone_stills",
+      "category": "drone",
+      "name": "Drone Photos",
+      "price": 125,
+      "photo_count": "8-10",
+      "includes": [
+        "8-10 aerial still photos",
+        "Front-of-house and lot layout shots",
+        "Edited and color graded",
+        "Weather permitting",
+        "Part 107 licensed pilot"
+      ],
+      "description": "Aerial stills to showcase the property and surrounding area."
+    },
+    {
+      "id": "addon_drone_video",
+      "category": "drone",
+      "name": "Drone Video Reel",
+      "price": 200,
+      "duration_seconds": "60",
+      "includes": [
+        "60-second aerial video",
+        "Cinematic reveal shots",
+        "Licensed background music",
+        "Color graded",
+        "Standalone deliverable"
+      ],
+      "description": "Standalone aerial video showcasing the property and surrounding area."
+    },
+    {
+      "id": "addon_drone_video_bundled",
+      "category": "drone",
+      "name": "Drone Video Add to Walkthrough",
+      "price": 100,
+      "requires": ["addon_walkthrough_full"],
+      "description": "Discounted aerial b-roll integrated into your full cinematic walkthrough.",
+      "note": "Only available when bundled with Full Cinematic Walkthrough"
+    },
+    {
+      "id": "addon_floor_plan",
+      "category": "floor_plan",
+      "name": "2D Floor Plan",
+      "price": 75,
+      "includes": [
+        "Professional 2D floor plan",
+        "Room-by-room measurements",
+        "Total square footage",
+        "Branded with agent details (optional)",
+        "Delivered as JPG and PDF"
+      ],
+      "description": "Accurate 2D floor plan with measurements."
+    }
+  ],
+  "bundles": [
+    {
+      "id": "bundle_listing",
+      "name": "The Listing Bundle",
+      "price": 425,
+      "savings": 75,
+      "includes_package_ids": ["photo_standard"],
+      "includes_addon_ids": ["addon_drone_stills", "addon_floor_plan"],
+      "individual_total": 500,
+      "description": "Standard photos + drone stills + floor plan. The right call for most listings.",
+      "is_recommended": true
+    },
+    {
+      "id": "bundle_showcase",
+      "name": "The Showcase Bundle",
+      "price": 675,
+      "savings": 125,
+      "includes_package_ids": ["photo_standard"],
+      "includes_addon_ids": ["addon_drone_stills", "addon_floor_plan", "addon_walkthrough_social"],
+      "individual_total": 800,
+      "description": "Everything in the Listing Bundle plus a social walkthrough video. For agents who market themselves and listings that need to move."
+    },
+    {
+      "id": "bundle_luxury",
+      "name": "The Luxury Bundle",
+      "price": 950,
+      "savings": 175,
+      "includes_package_ids": ["photo_premium"],
+      "includes_addon_ids": ["addon_drone_stills", "addon_drone_video", "addon_floor_plan", "addon_walkthrough_full"],
+      "individual_total": 1125,
+      "description": "Premium photos + drone stills + drone video + floor plan + full cinematic walkthrough. For $500K+ listings, builders, and custom homes."
+    }
+  ],
+  "tax": {
+    "ohio_sales_tax_applicable": true,
+    "default_rate_percentage": 7.0,
+    "note": "Ohio applies sales tax to photography services as tangible personal property."
+  },
+  "policies": {
+    "payment": {
+      "due": "in_full_at_booking",
+      "description": "Full payment due at time of booking via Wave invoice. Booking is not confirmed until payment clears."
+    },
+    "cancellation": [
+      { "window": "more_than_48_hours", "fee": 0, "description": "Free cancellation more than 48 hours before shoot. Payment held as credit toward future booking." },
+      { "window": "24_to_48_hours", "fee_flat": 50, "description": "$50 cancellation fee within 48 hours." },
+      { "window": "less_than_24_hours", "fee_type": "deposit_forfeit", "description": "25% of invoice forfeited for cancellations within 24 hours." },
+      { "window": "no_show", "fee_type": "full_invoice", "description": "Full invoice retained for no-show or inaccessible property at scheduled time." }
+    ],
+    "weather_reschedule": { "fee": 0, "description": "Free reschedule when DigFlat recommends rescheduling due to weather." },
+    "turnaround": { "standard_hours": 24, "rush_available": true, "rush_fee": 75, "rush_turnaround_hours": 12 },
+    "licensing": {
+      "agent_use": "Unlimited use for marketing the listed property and agent's personal marketing.",
+      "third_party_use": "Photos may not be transferred to other agents, brokerages, or used for other listings without written permission and additional licensing fee.",
+      "expiration": "License is tied to the listing. Once property sells or expires, photos may continue to be used in agent's portfolio but not to relist the property under a new agent."
+    }
+  }
+}

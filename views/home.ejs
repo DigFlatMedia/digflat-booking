@@ -1,0 +1,127 @@
+<%- include('_header', { title: 'Book a Shoot' }) %>
+
+<div class="page-hero">
+  <h1>Book Your Shoot</h1>
+  <p class="hero-sub">Real estate photography &amp; videography — Mansfield, OH and surrounding area.</p>
+</div>
+
+<form id="booking-form" action="/book" method="GET" class="service-picker">
+
+  <!-- Step indicator -->
+  <div class="steps">
+    <span class="step active">1. Choose Services</span>
+    <span class="step">2. Pick Date &amp; Time</span>
+    <span class="step">3. Your Info</span>
+    <span class="step">4. Pay &amp; Confirm</span>
+  </div>
+
+  <!-- Square footage hint -->
+  <section class="picker-section">
+    <h2>Property Details</h2>
+    <div class="field-row">
+      <label for="sqft">Square footage <span class="hint">(helps us suggest the right package)</span></label>
+      <input type="number" id="sqft" name="sqft" placeholder="e.g. 2200" min="0" max="20000" value="<%= query.sqft || '' %>">
+    </div>
+  </section>
+
+  <!-- Bundles -->
+  <section class="picker-section">
+    <h2>Popular Bundles</h2>
+    <p class="section-sub">Everything you need, priced together.</p>
+    <div class="bundle-grid">
+      <% for (const b of pricing.bundles) { %>
+      <label class="bundle-card <%= b.is_recommended ? 'recommended' : '' %>" data-bundle-id="<%= b.id %>">
+        <% if (b.is_recommended) { %><span class="badge-rec">Most Popular</span><% } %>
+        <input type="radio" name="bundle" value="<%= b.id %>" class="bundle-radio"
+          data-package="<%= b.includes_package_ids[0] %>"
+          data-addons="<%= b.includes_addon_ids.join(',') %>"
+          <%= (query.bundle === b.id) ? 'checked' : '' %>>
+        <strong class="bundle-name"><%= b.name %></strong>
+        <p class="bundle-desc"><%= b.description %></p>
+        <div class="bundle-includes">
+          <% const pkg = pricing.photo_packages.find(p => p.id === b.includes_package_ids[0]); %>
+          <% if (pkg) { %><span class="tag"><%= pkg.name %> Photos (<%= pkg.photo_count %>)</span><% } %>
+          <% for (const aid of b.includes_addon_ids) {
+             const a = pricing.add_ons.find(x => x.id === aid); %>
+          <% if (a) { %><span class="tag"><%= a.name %></span><% } %>
+          <% } %>
+        </div>
+        <div class="bundle-price">
+          <span class="price-big">$<%= b.price %></span>
+          <span class="price-save">Save $<%= b.savings %></span>
+        </div>
+      </label>
+      <% } %>
+    </div>
+  </section>
+
+  <!-- Photo packages -->
+  <section class="picker-section" id="section-custom">
+    <h2>Or Build Your Own</h2>
+    <p class="section-sub">Start with a photo package, then add what you need.</p>
+
+    <div class="package-grid">
+      <% for (const p of pricing.photo_packages) { %>
+      <label class="package-card" data-package-id="<%= p.id %>">
+        <input type="radio" name="package" value="<%= p.id %>" class="pkg-radio"
+          <%= (!query.bundle && (query.package === p.id || (!query.package && p.is_default))) ? 'checked' : '' %>>
+        <strong class="pkg-name"><%= p.name %></strong>
+        <span class="pkg-range"><%= p.sqft_max ? p.sqft_min.toLocaleString() + '–' + p.sqft_max.toLocaleString() : p.sqft_min.toLocaleString() + '+' %> sqft</span>
+        <span class="pkg-count"><%= p.photo_count %> photos</span>
+        <p class="pkg-desc"><%= p.description %></p>
+        <div class="pkg-includes">
+          <% for (const inc of p.includes) { %><div class="inc-item">✓ <%= inc %></div><% } %>
+        </div>
+        <span class="pkg-price">$<%= p.price %></span>
+      </label>
+      <% } %>
+    </div>
+
+    <!-- Add-ons -->
+    <div class="addons-wrap">
+      <h3>Add-ons</h3>
+      <div class="addon-grid">
+        <% for (const a of pricing.add_ons) { %>
+        <label class="addon-card" data-addon-id="<%= a.id %>" data-requires="<%= (a.requires || []).join(',') %>">
+          <input type="checkbox" name="addons" value="<%= a.id %>" class="addon-check"
+            <%= (query.addons || '').split(',').includes(a.id) ? 'checked' : '' %>>
+          <strong class="addon-name"><%= a.name %></strong>
+          <% if (a.requires && a.requires.length) { %>
+            <span class="addon-req">Requires: Full Cinematic Walkthrough</span>
+          <% } %>
+          <p class="addon-desc"><%= a.description %></p>
+          <span class="addon-price">+$<%= a.price %></span>
+        </label>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rush option -->
+  <section class="picker-section">
+    <label class="rush-label">
+      <input type="checkbox" name="rush" id="rush-check" value="1" <%= query.rush === '1' ? 'checked' : '' %>>
+      <span>
+        <strong>Rush 12-hour turnaround</strong> (+$<%= pricing.policies?.turnaround?.rush_fee ?? 75 %>)
+        <span class="hint">Photos delivered within 12 hours of shoot</span>
+      </span>
+    </label>
+  </section>
+
+  <!-- Live price summary -->
+  <div class="price-summary" id="price-summary">
+    <div class="ps-loading">Calculating…</div>
+  </div>
+
+  <div class="cta-row">
+    <button type="submit" class="btn-primary" id="continue-btn">Continue to Schedule →</button>
+  </div>
+
+</form>
+
+<script>
+// Embedded pricing data for client-side display.
+window.PRICING = <%- JSON.stringify(pricing) %>;
+</script>
+
+<%- include('_footer') %>

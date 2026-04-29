@@ -1,0 +1,117 @@
+<%- include('_admin_header', { title: 'Booking #' + booking.id }) %>
+
+<div class="mb-4">
+  <a href="/admin" class="text-sm text-blue-600 hover:underline">← All bookings</a>
+</div>
+
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold">Booking #<%= booking.id %></h1>
+    <span class="inline-block mt-1 px-3 py-1 rounded-full text-sm font-medium
+      <%= booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+          booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+          booking.status === 'awaiting_approval' ? 'bg-orange-100 text-orange-800' :
+          booking.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+          'bg-gray-100 text-gray-600' %>">
+      <%= booking.status.replace('_',' ').toUpperCase() %>
+    </span>
+  </div>
+  <div class="flex gap-2">
+    <% if (booking.wave?.viewUrl) { %>
+    <a href="<%= booking.wave.viewUrl %>" target="_blank" class="px-3 py-1.5 text-sm border rounded hover:bg-gray-50">Wave Invoice ↗</a>
+    <% } %>
+    <a href="/booking/<%= booking.token %>" target="_blank" class="px-3 py-1.5 text-sm border rounded hover:bg-gray-50">Customer View ↗</a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+  <!-- Shoot details -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="font-semibold text-lg mb-4">Shoot Details</h2>
+    <dl class="space-y-2 text-sm">
+      <div><dt class="text-gray-500">Date &amp; Time</dt>
+        <dd class="font-medium"><%= booking.schedule?.startISO ? new Date(booking.schedule.startISO).toLocaleString('en-US',{timeZone:booking.schedule.timezone||'America/New_York',weekday:'long',month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '—' %></dd>
+      </div>
+      <div><dt class="text-gray-500">Property</dt><dd><%= booking.property.address %></dd></div>
+      <div><dt class="text-gray-500">Sqft</dt><dd><%= booking.property.sqft?.toLocaleString() %></dd></div>
+      <div><dt class="text-gray-500">Access</dt><dd><%= booking.property.accessInstructions || '—' %></dd></div>
+      <div><dt class="text-gray-500">Seller Contact</dt><dd><%= booking.property.sellerContact || '—' %></dd></div>
+      <div><dt class="text-gray-500">Notes</dt><dd><%= booking.property.notes || '—' %></dd></div>
+      <% if (booking.distanceMiles) { %>
+      <div><dt class="text-gray-500">Distance</dt><dd>~<%= Math.round(booking.distanceMiles) %> miles</dd></div>
+      <% } %>
+      <% if (booking.googleEventId) { %>
+      <div><dt class="text-gray-500">Calendar Event</dt><dd class="text-green-600">✓ Added to Google Calendar</dd></div>
+      <% } %>
+    </dl>
+  </div>
+
+  <!-- Client details -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="font-semibold text-lg mb-4">Client</h2>
+    <dl class="space-y-2 text-sm">
+      <div><dt class="text-gray-500">Name</dt><dd class="font-medium"><%= booking.customer.name %></dd></div>
+      <div><dt class="text-gray-500">Email</dt><dd><a href="mailto:<%= booking.customer.email %>" class="text-blue-600"><%= booking.customer.email %></a></dd></div>
+      <div><dt class="text-gray-500">Phone</dt><dd><a href="tel:<%= booking.customer.phone %>"><%= booking.customer.phone %></a></dd></div>
+      <div><dt class="text-gray-500">Brokerage</dt><dd><%= booking.customer.brokerage || '—' %></dd></div>
+    </dl>
+  </div>
+
+  <!-- Order -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="font-semibold text-lg mb-4">Order</h2>
+    <% for (const li of booking.quote.lineItems) { %>
+    <div class="flex justify-between text-sm py-1 border-b last:border-0">
+      <span><%= li.name %></span><span class="font-medium">$<%= li.amount.toFixed(2) %></span>
+    </div>
+    <% } %>
+    <% if (booking.quote.tax > 0) { %>
+    <div class="flex justify-between text-sm py-1 border-b text-gray-500">
+      <span>OH Sales Tax (<%= (booking.quote.taxRate * 100).toFixed(1) %>%)</span><span>$<%= booking.quote.tax.toFixed(2) %></span>
+    </div>
+    <% } %>
+    <div class="flex justify-between text-base font-bold pt-2 mt-1">
+      <span>Total</span><span>$<%= booking.quote.total.toFixed(2) %></span>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="bg-white rounded-lg shadow p-6 space-y-6">
+    <h2 class="font-semibold text-lg">Actions</h2>
+
+    <% if (booking.status === 'awaiting_approval') { %>
+    <div>
+      <p class="text-sm text-orange-700 mb-2">This booking needs approval before invoicing the client.</p>
+      <form action="/admin/bookings/<%= booking.id %>/approve" method="POST">
+        <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Approve &amp; Send Invoice</button>
+      </form>
+    </div>
+    <% } %>
+
+    <% if (booking.status === 'confirmed') { %>
+    <div>
+      <h3 class="text-sm font-semibold mb-2">Deliver Photos</h3>
+      <form action="/admin/bookings/<%= booking.id %>/dropbox" method="POST" class="flex gap-2">
+        <input type="url" name="dropboxLink" placeholder="Dropbox shared link…"
+          value="<%= booking.dropboxLink || '' %>"
+          class="flex-1 border rounded px-3 py-1.5 text-sm" required>
+        <button class="px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Send to Client</button>
+      </form>
+      <% if (booking.deliveredAt) { %><p class="text-xs text-green-600 mt-1">✓ Delivered <%= new Date(booking.deliveredAt).toLocaleDateString() %></p><% } %>
+    </div>
+    <% } %>
+
+    <% if (['pending','confirmed','awaiting_approval'].includes(booking.status)) { %>
+    <div>
+      <form action="/admin/bookings/<%= booking.id %>/cancel" method="POST" onsubmit="return confirm('Cancel this booking?')">
+        <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm">Cancel Booking</button>
+      </form>
+    </div>
+    <% } %>
+
+  </div>
+
+</div>
+
+<%- include('_admin_footer') %>

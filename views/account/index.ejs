@@ -1,0 +1,37 @@
+<%- include('../_header', { title: 'My Bookings' }) %>
+
+<div class="account-page">
+  <div class="account-header">
+    <h1>My Bookings</h1>
+    <p class="account-email"><%= locals.session?.email %></p>
+  </div>
+
+  <% if (!bookings.length) { %>
+  <div class="empty-state">
+    <p>No bookings yet.</p>
+    <a href="/" class="btn-primary">Book a shoot →</a>
+  </div>
+  <% } else { %>
+  <div class="bookings-list">
+    <% for (const b of bookings) { %>
+    <a href="/booking/<%= b.token %>" class="booking-row status-<%= b.status %>">
+      <div class="br-main">
+        <strong><%= b.property.address %></strong>
+        <span class="br-date"><%= new Date(b.schedule?.startISO).toLocaleDateString('en-US', {timeZone: b.schedule?.timezone || 'America/New_York', weekday:'short', month:'short', day:'numeric', year:'numeric'}) %></span>
+      </div>
+      <div class="br-meta">
+        <span class="status-badge status-<%= b.status %>"><%= b.status.replace('_',' ') %></span>
+        <span class="br-total">$<%= b.quote.total.toFixed(2) %></span>
+      </div>
+    </a>
+    <% } %>
+  </div>
+  <% } %>
+
+  <div class="account-actions">
+    <a href="/">Book another shoot</a> &middot;
+    <a href="/account/logout">Sign out</a>
+  </div>
+</div>
+
+<%- include('../_footer') %>

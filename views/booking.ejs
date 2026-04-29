@@ -1,0 +1,121 @@
+<%- include('_header', { title: 'Booking #' + booking.id }) %>
+
+<div class="booking-detail">
+  <div class="bd-header">
+    <div>
+      <h1>Booking <span class="bd-id">#<%= booking.id %></span></h1>
+      <span class="status-badge status-<%= booking.status %>"><%= booking.status.replace('_', ' ').toUpperCase() %></span>
+    </div>
+    <% if (booking.status === 'pending' && booking.wave?.viewUrl) { %>
+    <a href="<%= booking.wave.viewUrl %>" class="btn-primary">Complete Payment →</a>
+    <% } %>
+  </div>
+
+  <% if (booking.status === 'pending') { %>
+  <div class="notice notice-warn" id="status-poller" data-token="<%= booking.token %>">
+    <strong>Awaiting payment.</strong> Your time slot is held. Once payment clears, this page will update automatically.
+    <% if (booking.wave?.viewUrl) { %><br><a href="<%= booking.wave.viewUrl %>">Open payment page →</a><% } %>
+  </div>
+  <% } %>
+
+  <% if (booking.status === 'confirmed') { %>
+  <div class="notice notice-ok">
+    <strong>Confirmed!</strong> We'll see you at the shoot.
+    <% if (booking.dropboxLink) { %>
+    <br><a href="<%= booking.dropboxLink %>" class="btn-sm">Download Photos →</a>
+    <% } %>
+  </div>
+  <% } %>
+
+  <% if (booking.status === 'awaiting_approval') { %>
+  <div class="notice notice-warn">
+    <strong>Pending review.</strong> This booking requires manual approval due to location. We'll email you within one business day.
+  </div>
+  <% } %>
+
+  <% if (booking.status === 'cancelled') { %>
+  <div class="notice notice-err">
+    <strong>Cancelled.</strong> <a href="/">Book a new shoot →</a>
+  </div>
+  <% } %>
+
+  <div class="bd-grid">
+    <div class="bd-card">
+      <h3>Shoot Details</h3>
+      <dl>
+        <dt>Date &amp; Time</dt>
+        <dd id="shoot-time" data-iso="<%= booking.schedule?.startISO %>"><%= new Date(booking.schedule?.startISO).toLocaleString('en-US', {timeZone: booking.schedule?.timezone || 'America/New_York', weekday:'long', month:'long', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'}) %></dd>
+        <dt>Property</dt>
+        <dd><%= booking.property.address %></dd>
+        <dt>Square Footage</dt>
+        <dd><%= booking.property.sqft?.toLocaleString() %> sqft</dd>
+        <dt>Access</dt>
+        <dd><%= booking.property.accessInstructions || '—' %></dd>
+        <% if (booking.property.sellerContact) { %>
+        <dt>Seller Contact</dt>
+        <dd><%= booking.property.sellerContact %></dd>
+        <% } %>
+      </dl>
+    </div>
+
+    <div class="bd-card">
+      <h3>Order Summary</h3>
+      <% for (const li of booking.quote.lineItems) { %>
+      <div class="os-row"><span><%= li.name %></span><span>$<%= li.amount.toFixed(2) %></span></div>
+      <% } %>
+      <% if (booking.quote.tax > 0) { %>
+      <div class="os-row os-tax"><span>OH Sales Tax</span><span>$<%= booking.quote.tax.toFixed(2) %></span></div>
+      <% } %>
+      <div class="os-row os-total"><span>Total</span><span>$<%= booking.quote.total.toFixed(2) %></span></div>
+    </div>
+
+    <div class="bd-card">
+      <h3>Contact</h3>
+      <dl>
+        <dt>Name</dt><dd><%= booking.customer.name %></dd>
+        <dt>Email</dt><dd><%= booking.customer.email %></dd>
+        <dt>Phone</dt><dd><%= booking.customer.phone %></dd>
+        <% if (booking.customer.brokerage) { %><dt>Brokerage</dt><dd><%= booking.customer.brokerage %></dd><% } %>
+      </dl>
+    </div>
+
+    <% if (booking.dropboxLink) { %>
+    <div class="bd-card bd-delivery">
+      <h3>Your Photos</h3>
+      <p>Your photos are ready for download.</p>
+      <a href="<%= booking.dropboxLink %>" class="btn-primary" target="_blank">Download from Dropbox →</a>
+    </div>
+    <% } %>
+  </div><!-- /.bd-grid -->
+
+  <% if (['pending', 'confirmed'].includes(booking.status)) { %>
+  <details class="cancel-details">
+    <summary>Cancel this booking</summary>
+    <p>Free cancellation 48+ hours before shoot. See <a href="https://digflatmedia.com">cancellation policy</a>.</p>
+    <form action="/booking/<%= booking.token %>/cancel" method="POST" onsubmit="return confirm('Cancel this booking?')">
+      <button type="submit" class="btn-danger">Cancel Booking</button>
+    </form>
+  </details>
+  <% } %>
+
+</div>
+
+<script>
+// Auto-refresh page when status is pending (poll /booking/:token/status every 8s).
+(function() {
+  const el = document.getElementById('status-poller');
+  if (!el) return;
+  const token = el.dataset.token;
+  function poll() {
+    fetch('/booking/' + token + '/status')
+      .then(r => r.json())
+      .then(d => {
+        if (d.status === 'confirmed') location.reload();
+        else setTimeout(poll, 8000);
+      }).catch(() => setTimeout(poll, 15000));
+  }
+  setTimeout(poll, 8000);
+})();
+</script>
+
+<%- include('_footer') %>

@@ -1,0 +1,20 @@
+<%- include('_admin_header', { title: 'Config' }) %>
+
+<h1 class="text-2xl font-bold mb-2">Config</h1>
+<p class="text-sm text-gray-500 mb-6">Edit config.json — schedule hours, durations, buffer time, etc.</p>
+
+<% if (message) { %>
+<div class="mb-4 px-4 py-3 rounded text-sm <%= message === 'Saved.' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+  <%= message %>
+</div>
+<% } %>
+
+<form action="/admin/config" method="POST">
+  <textarea name="json" class="w-full font-mono text-xs border rounded p-3 bg-gray-50" rows="40" spellcheck="false"><%= json %></textarea>
+  <div class="mt-3 flex gap-3">
+    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Save</button>
+    <a href="/admin" class="px-4 py-2 border rounded text-sm hover:bg-gray-50">Cancel</a>
+  </div>
+</form>
+
+<%- include('_admin_footer') %>
