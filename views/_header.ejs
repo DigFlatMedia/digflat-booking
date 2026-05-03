@@ -7,8 +7,19 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="/public/styles.css">
+  <% if (locals.embed) { %>
+  <style>
+    /* Embed mode: hide the app's own nav — the host site provides branding */
+    .site-header { display: none !important; }
+    .site-footer { display: none !important; }
+    .main-content { min-height: unset; }
+    .page-hero { padding: 28px 24px 20px; }
+    body { background: transparent; }
+  </style>
+  <% } %>
 </head>
-<body>
+<body<% if (locals.embed) { %> class="embed-mode"<% } %>>
+  <% if (!locals.embed) { %>
   <header class="site-header">
     <a href="/" class="logo">
       <span class="logo-mark">DF</span>
@@ -23,4 +34,5 @@
       <% } %>
     </nav>
   </header>
+  <% } %>
   <main class="main-content">

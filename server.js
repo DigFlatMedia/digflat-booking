@@ -59,6 +59,12 @@ app.use(async (req, res, next) => {
   res.locals.publicUrl = PUBLIC_URL;
   res.locals.session = readSession(req);
   res.locals.year = new Date().getFullYear();
+  // Embed mode: when ?embed=1 is present, persist in a cookie so the full
+  // multi-step flow stays embed-aware (cross-origin iframe requires SameSite=None).
+  if (req.query.embed === '1') {
+    res.cookie('_embed', '1', { path: '/', sameSite: 'none', secure: true, maxAge: 3600 });
+  }
+  res.locals.embed = req.query.embed === '1' || req.cookies?._embed === '1';
   next();
 });
 
