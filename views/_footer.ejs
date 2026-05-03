@@ -1,9 +1,30 @@
   </main>
+  <% if (!locals.embed) { %>
   <footer class="site-footer">
     <p>&copy; <%= locals.year %> DigFlat Media &middot; Mansfield, OH &middot;
       <a href="https://digflatmedia.com" target="_blank" rel="noopener">digflatmedia.com</a>
     </p>
   </footer>
+  <% } %>
   <script src="/public/app.js" defer></script>
+  <% if (locals.embed) { %>
+  <script>
+    // Auto-resize: tell the parent Squarespace page our actual height
+    (function () {
+      function sendHeight() {
+        var h = Math.ceil(document.body.scrollHeight);
+        window.parent.postMessage({ type: 'digflat-resize', height: h }, '*');
+      }
+      // Send immediately and on every meaningful change
+      window.addEventListener('load', sendHeight);
+      if (window.ResizeObserver) {
+        new ResizeObserver(sendHeight).observe(document.documentElement);
+      } else {
+        window.addEventListener('resize', sendHeight);
+        setInterval(sendHeight, 800);
+      }
+    })();
+  </script>
+  <% } %>
 </body>
 </html>

@@ -5,34 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= typeof title !== 'undefined' ? title + ' — ' : '' %>DigFlat Media Booking</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&family=Nunito+Sans:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="/public/styles.css">
   <% if (locals.embed) { %>
   <style>
-    /* Embed mode: hide the app's own nav — the host site provides branding */
+    /* Embed mode: integrated into host site — strip standalone chrome */
     .site-header { display: none !important; }
     .site-footer { display: none !important; }
     .main-content { min-height: unset; }
-    .page-hero { padding: 28px 24px 20px; }
+    .page-hero { padding: 20px 24px 16px; }
     body { background: transparent; }
   </style>
   <% } %>
 </head>
 <body<% if (locals.embed) { %> class="embed-mode"<% } %>>
-  <% if (!locals.embed) { %>
-  <header class="site-header">
-    <a href="/" class="logo">
-      <span class="logo-mark">DF</span>
-      <span class="logo-text">DigFlat Media</span>
-    </a>
-    <nav class="site-nav">
-      <% if (locals.session) { %>
-        <a href="/account">My Bookings</a>
-        <a href="/account/logout">Sign out</a>
-      <% } else { %>
-        <a href="/account/login">Sign in</a>
-      <% } %>
-    </nav>
-  </header>
-  <% } %>
   <main class="main-content">
