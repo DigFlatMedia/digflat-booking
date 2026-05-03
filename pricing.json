@@ -8,61 +8,56 @@
     "version": "1.0",
     "last_updated": "2026-04-28"
   },
+  "commercial_packages": [],
   "photo_packages": [
     {
       "id": "photo_essentials",
-      "name": "Essentials",
+      "name": "Condo / Townhome",
       "price": 175,
       "sqft_min": 0,
       "sqft_max": 1500,
-      "photo_count": 25,
       "turnaround_hours": 24,
       "includes": [
-        "25 high-resolution photos",
+        "Full coverage — as many photos as your home needs",
         "MLS-sized and full-resolution delivery",
         "Blue sky guarantee",
         "Professional HDR editing",
-        "24-hour turnaround",
-        "Branded gallery with property website"
+        "Next business day delivery"
       ],
-      "description": "Perfect for condos, smaller homes, and starter listings."
+      "description": "Ideal for condos, townhomes, and smaller listings."
     },
     {
       "id": "photo_standard",
-      "name": "Standard",
+      "name": "Single Family",
       "price": 225,
       "sqft_min": 1501,
       "sqft_max": 3000,
-      "photo_count": 35,
       "turnaround_hours": 24,
       "includes": [
-        "35 high-resolution photos",
+        "Full coverage — as many photos as your home needs",
         "MLS-sized and full-resolution delivery",
         "Blue sky guarantee",
         "Professional HDR editing",
-        "24-hour turnaround",
-        "Branded gallery with property website"
+        "Next business day delivery"
       ],
-      "description": "The bread-and-butter package for the majority of listings.",
+      "description": "The right fit for the majority of single-family listings.",
       "is_default": true
     },
     {
       "id": "photo_premium",
-      "name": "Premium",
+      "name": "Estate / Luxury",
       "price": 300,
       "sqft_min": 3001,
       "sqft_max": null,
-      "photo_count": 50,
       "turnaround_hours": 24,
       "includes": [
-        "50 high-resolution photos",
+        "Full coverage — as many photos as your home needs",
         "MLS-sized and full-resolution delivery",
         "Blue sky guarantee",
         "Professional HDR editing",
-        "24-hour turnaround",
-        "Branded gallery with property website"
+        "Next business day delivery"
       ],
-      "description": "For larger homes, luxury listings, and properties needing extensive coverage."
+      "description": "Built for larger homes, luxury listings, and premium properties."
     }
   ],
   "add_ons": [
@@ -70,7 +65,7 @@
       "id": "addon_walkthrough_social",
       "category": "video",
       "name": "Social Walkthrough Video",
-      "price": 250,
+      "price": 99,
       "duration_seconds": "60-90",
       "includes": [
         "Vertical (9:16) cut for Reels/TikTok/Stories",
@@ -85,7 +80,7 @@
       "id": "addon_walkthrough_full",
       "category": "video",
       "name": "Full Cinematic Walkthrough",
-      "price": 400,
+      "price": 199,
       "duration_seconds": "120-180",
       "includes": [
         "2-3 minute cinematic edit",
@@ -101,8 +96,7 @@
       "id": "addon_walkthrough_combo",
       "category": "video",
       "name": "Walkthrough Video Combo",
-      "price": 550,
-      "discount_from_individual": 100,
+      "price": 275,
       "includes": [
         "Social walkthrough (vertical + horizontal)",
         "Full cinematic walkthrough",
@@ -150,18 +144,88 @@
       "note": "Only available when bundled with Full Cinematic Walkthrough"
     },
     {
-      "id": "addon_floor_plan",
+      "id": "addon_floor_plan_basic",
       "category": "floor_plan",
-      "name": "2D Floor Plan",
-      "price": 75,
+      "name": "Basic 2D Floor Plan",
+      "price": 0,
+      "provider": "CubiCasa",
       "includes": [
-        "Professional 2D floor plan",
-        "Room-by-room measurements",
+        "2D floor plan with room dimensions",
         "Total square footage",
-        "Branded with agent details (optional)",
-        "Delivered as JPG and PDF"
+        "PNG & JPG delivery",
+        "Next business day delivery"
       ],
-      "description": "Accurate 2D floor plan with measurements."
+      "description": "Clean 2D floor plan with measurements — included free with every shoot."
+    },
+    {
+      "id": "addon_floor_plan_furniture",
+      "category": "floor_plan",
+      "name": "2D Floor Plan + Furniture",
+      "price": 18,
+      "provider": "CubiCasa",
+      "includes": [
+        "Everything in Basic 2D",
+        "Fixed furniture shown on plan",
+        "Custom styling options",
+        "PNG, JPG & SVG delivery"
+      ],
+      "description": "2D floor plan with fixed furniture details for a more polished presentation."
+    },
+    {
+      "id": "addon_floor_plan_gla",
+      "category": "floor_plan",
+      "name": "2D Floor Plan + GLA Report",
+      "price": 18,
+      "provider": "CubiCasa",
+      "includes": [
+        "Everything in Basic 2D",
+        "Gross Living Area (GLA) report",
+        "ANSI Z765 / Fannie Mae standard",
+        "Useful for appraisals & disclosures"
+      ],
+      "description": "Basic 2D floor plan plus a certified GLA report aligned with ANSI Z765 / Fannie Mae standards."
+    },
+    {
+      "id": "addon_floor_plan_3d",
+      "category": "floor_plan",
+      "name": "3D Floor Plan",
+      "price": 42,
+      "provider": "CubiCasa",
+      "includes": [
+        "Full 3D floor plan rendering",
+        "Room dimensions & square footage",
+        "PNG & JPG delivery",
+        "Next business day delivery"
+      ],
+      "description": "Immersive 3D floor plan that helps buyers visualize the layout."
+    },
+    {
+      "id": "addon_floor_plan_3d_full",
+      "category": "floor_plan",
+      "name": "3D Floor Plan — Full Detail",
+      "price": 78,
+      "provider": "CubiCasa",
+      "includes": [
+        "3D floor plan rendering",
+        "Furniture details in 3D",
+        "Colors & textures applied",
+        "PNG & JPG delivery"
+      ],
+      "description": "3D floor plan with furniture, colors, and textures for maximum visual impact."
+    },
+    {
+      "id": "addon_floor_plan_3d_bundle",
+      "category": "floor_plan",
+      "name": "3D Marketing Bundle",
+      "price": 179,
+      "provider": "CubiCasa",
+      "includes": [
+        "3D floor plan with full detail",
+        "3D video walkthrough render (MP4)",
+        "Furniture, colors & textures",
+        "PNG, JPG & video delivery"
+      ],
+      "description": "The complete CubiCasa package — 3D floor plan plus a room-by-room video render for premium listings."
     }
   ],
   "bundles": [

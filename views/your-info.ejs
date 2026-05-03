@@ -1,0 +1,132 @@
+<%- include('_header', { title: 'Get Started' }) %>
+
+<div class="page-hero">
+  <h1>Let's Get Started</h1>
+  <p class="page-sub">Tell us who you are, then we'll walk you through the rest.</p>
+</div>
+
+<div class="steps">
+  <span class="step active">1. Your Info</span>
+  <span class="step future">2. Choose Services</span>
+  <span class="step future">3. Property Details</span>
+  <span class="step future">4. Pick Date &amp; Time</span>
+  <span class="step future">5. Pay &amp; Confirm</span>
+</div>
+
+<div class="your-info-layout">
+
+  <div class="your-info-main">
+
+    <% if (!sessionEmail) { %>
+    <div class="account-card card">
+      <div class="account-tabs" role="tablist">
+        <button type="button" class="account-tab active" data-tab="signin"  role="tab" aria-selected="true">Sign In</button>
+        <button type="button" class="account-tab"        data-tab="create"  role="tab" aria-selected="false">Create Account</button>
+      </div>
+
+      <div class="account-panel" id="tab-signin">
+        <p class="account-panel-desc">Welcome back — enter your email and we'll send you a sign-in link.</p>
+        <form action="/account/login" method="POST" class="signin-inline">
+          <input type="hidden" name="returnTo" value="<%= locals.returnPath || '/your-info' %>">
+          <div class="signin-row">
+            <input type="email" name="email" placeholder="your@email.com" required class="signin-email">
+            <button type="submit" class="btn-secondary">Send sign-in link</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="account-panel" id="tab-create" hidden>
+        <p class="account-panel-desc">New here? Enter your email — no password needed. We'll send you a link to activate your account.</p>
+        <form action="/account/login" method="POST" class="signin-inline">
+          <input type="hidden" name="returnTo" value="<%= locals.returnPath || '/your-info' %>">
+          <input type="hidden" name="mode" value="register">
+          <div class="signin-row">
+            <input type="email" name="email" placeholder="your@email.com" required class="signin-email">
+            <button type="submit" class="btn-secondary">Create account</button>
+          </div>
+        </form>
+      </div>
+
+      <p class="signin-or">— or continue as a guest below —</p>
+    </div>
+    <% } else { %>
+    <div class="signin-card signin-active card">
+      <span class="signin-check">✓</span>
+      <div>
+        <p class="signin-who">Signed in as <strong><%= sessionEmail %></strong></p>
+        <a href="/account/logout" class="signin-logout">Sign out</a>
+      </div>
+    </div>
+    <% } %>
+
+    <% if (error) { %>
+    <div class="notice notice-err" style="margin-bottom:16px">
+      <% if (error === 'missing') { %>Please fill in all required fields.
+      <% } else if (error === 'email') { %>Please enter a valid email address.
+      <% } else { %>Something went wrong — please try again.<% } %>
+    </div>
+    <% } %>
+
+    <form action="/your-info" method="POST" class="your-info-form" novalidate>
+      <!-- Honeypot -->
+      <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+
+      <section class="form-section card">
+        <h2>Your Information</h2>
+
+        <div class="field-group">
+          <label>Full Name *</label>
+          <input type="text" name="name" required value="<%= prefill?.name || '' %>" placeholder="Jane Smith" autofocus>
+        </div>
+        <div class="field-group">
+          <label>Email *</label>
+          <input type="email" name="email" required value="<%= sessionEmail || prefill?.email || '' %>" placeholder="jane@brokerage.com"
+            <% if (sessionEmail) { %>readonly<% } %>>
+        </div>
+        <div class="field-group">
+          <label>Phone *</label>
+          <input type="tel" name="phone" required value="<%= prefill?.phone || '' %>" placeholder="(419) 555-0100">
+        </div>
+        <div class="field-group">
+          <label>Brokerage</label>
+          <input type="text" name="brokerage" value="<%= prefill?.brokerage || '' %>" placeholder="RE/MAX, Coldwell Banker…">
+        </div>
+        <div class="field-group">
+          <label>Brokerage Address</label>
+          <input type="text" name="brokerage_address" value="<%= prefill?.brokerageAddress || '' %>" placeholder="123 Main St, Mansfield, OH 44901">
+        </div>
+      </section>
+
+      <button type="submit" class="btn-primary btn-block">
+        Continue → Choose Services
+      </button>
+    </form>
+  </div>
+
+  <div class="your-info-side">
+    <div class="card your-info-why">
+      <h3>Why we ask</h3>
+      <ul>
+        <li>We use your info to prepare your booking confirmation and invoice.</li>
+        <li>Returning clients can sign in above to skip this step next time.</li>
+        <li>We never share your contact info with third parties.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  const tabs   = document.querySelectorAll('.account-tab');
+  const panels = document.querySelectorAll('.account-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => { t.classList.toggle('active', t === tab); t.setAttribute('aria-selected', t === tab); });
+      panels.forEach(p => { p.hidden = (p.id !== 'tab-' + target); });
+    });
+  });
+})();
+</script>
+<%- include('_footer') %>

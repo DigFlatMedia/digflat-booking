@@ -1,0 +1,227 @@
+<%- include('_header', { title: 'Property Details' }) %>
+
+<div class="page-hero">
+  <h1>Property Details</h1>
+</div>
+
+<div class="steps">
+  <a class="step done" href="/your-info">1. Your Info</a>
+  <a class="step done" href="/?package=<%= encodeURIComponent(query.package||'') %>&addons=<%= encodeURIComponent(query.addons||'') %>&rush=<%= query.rush||'' %>">2. Choose Services</a>
+  <span class="step active">3. Property Details</span>
+  <span class="step future">4. Pick Date &amp; Time</span>
+  <span class="step future">5. Pay &amp; Confirm</span>
+</div>
+
+<form action="/book" method="GET" class="service-picker">
+
+  <!-- Pass service selections through -->
+  <input type="hidden" name="property_type" value="<%= query.property_type || 'residential' %>">
+  <input type="hidden" name="package"        value="<%= query.package || '' %>">
+  <input type="hidden" name="addons"         value="<%= query.addons || '' %>">
+  <input type="hidden" name="video"          value="<%= query.video || 'none' %>">
+  <input type="hidden" name="floorplan"      value="<%= query.floorplan || 'addon_floor_plan_basic' %>">
+  <input type="hidden" name="rush"           value="<%= query.rush || '' %>">
+  <input type="hidden" name="bundle"         value="<%= query.bundle || '' %>">
+
+  <!-- ① The Listing -->
+  <section class="picker-section">
+    <h2>The Listing</h2>
+    <p class="section-sub">Used to build your listing page and deliver your media.</p>
+
+    <div class="field-row">
+      <label for="address">Street address *</label>
+      <input type="text" id="address" name="address" placeholder="e.g. 123 Main St" required value="<%= query.address || '' %>">
+    </div>
+    <div class="field-row--csz">
+      <div class="field-col">
+        <label for="city">City *</label>
+        <input type="text" id="city" name="city" placeholder="Mansfield" required value="<%= query.city || '' %>">
+      </div>
+      <div class="field-col">
+        <label for="state">State *</label>
+        <input type="text" id="state" name="state" placeholder="OH" maxlength="2" required value="<%= query.state || '' %>">
+      </div>
+      <div class="field-col">
+        <label for="zip">ZIP *</label>
+        <input type="text" id="zip" name="zip" placeholder="44901" maxlength="10" required value="<%= query.zip || '' %>">
+      </div>
+    </div>
+
+    <div class="q-grid" style="margin-top:16px">
+      <div class="field-group">
+        <label for="mls_number">MLS # <span class="hint">Optional</span></label>
+        <input type="text" id="mls_number" name="mls_number" placeholder="e.g. 12345678" value="<%= query.mls_number || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="list_price">Listing price <span class="hint">Optional</span></label>
+        <input type="text" id="list_price" name="list_price" placeholder="e.g. $425,000" value="<%= query.list_price || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="prop_status">Property status *</label>
+        <select id="prop_status" name="prop_status" required>
+          <option value="" disabled <%= !query.prop_status ? 'selected' : '' %>>Select…</option>
+          <option value="vacant"   <%= query.prop_status === 'vacant'   ? 'selected' : '' %>>Vacant</option>
+          <option value="staged"   <%= query.prop_status === 'staged'   ? 'selected' : '' %>>Staged</option>
+          <option value="occupied" <%= query.prop_status === 'occupied' ? 'selected' : '' %>>Occupied</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="sqft">Square footage *</label>
+        <input type="number" id="sqft" name="sqft" placeholder="e.g. 2200" min="0" max="99999" required value="<%= query.sqft || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="bedrooms">Bedrooms *</label>
+        <input type="number" id="bedrooms" name="bedrooms" placeholder="e.g. 4" min="0" max="99" required value="<%= query.bedrooms || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="bathrooms">Bathrooms *</label>
+        <input type="text" id="bathrooms" name="bathrooms" placeholder="e.g. 2.5" required value="<%= query.bathrooms || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="year_built">Year built <span class="hint">Optional</span></label>
+        <input type="number" id="year_built" name="year_built" placeholder="e.g. 1998" min="1800" max="2030" value="<%= query.year_built || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="lot_size">Lot size <span class="hint">Optional</span></label>
+        <input type="text" id="lot_size" name="lot_size" placeholder="e.g. 0.45 acres" value="<%= query.lot_size || '' %>">
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-top:8px">
+      <label>Additional spaces <span class="hint">Check all that apply</span></label>
+      <div class="q-group q-group--row">
+        <label class="q-option"><input type="checkbox" name="has_basement"      value="1" <%= query.has_basement      === '1' ? 'checked' : '' %>> Basement</label>
+        <label class="q-option"><input type="checkbox" name="has_garage"        value="1" <%= query.has_garage        === '1' ? 'checked' : '' %>> Garage</label>
+        <label class="q-option"><input type="checkbox" name="has_barn"          value="1" <%= query.has_barn          === '1' ? 'checked' : '' %>> Barn</label>
+        <label class="q-option"><input type="checkbox" name="has_pool_house"    value="1" <%= query.has_pool_house    === '1' ? 'checked' : '' %>> Pool House</label>
+        <label class="q-option"><input type="checkbox" name="has_guest_house"   value="1" <%= query.has_guest_house   === '1' ? 'checked' : '' %>> Guest House</label>
+        <label class="q-option"><input type="checkbox" name="has_workshop"      value="1" <%= query.has_workshop      === '1' ? 'checked' : '' %>> Workshop</label>
+        <label class="q-option"><input type="checkbox" name="has_shed"          value="1" <%= query.has_shed          === '1' ? 'checked' : '' %>> Shed</label>
+        <label class="q-option"><input type="checkbox" name="has_carriage_house" value="1" <%= query.has_carriage_house === '1' ? 'checked' : '' %>> Carriage House</label>
+        <label class="q-option"><input type="checkbox" name="has_boathouse"     value="1" <%= query.has_boathouse     === '1' ? 'checked' : '' %>> Boathouse</label>
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-top:8px">
+      <label for="public_remarks">Property description <span class="hint">Optional — appears on your listing page and can be copied to MLS</span></label>
+      <textarea id="public_remarks" name="public_remarks" rows="4" placeholder="Describe the property for buyers. This will appear on your media gallery page."><%= query.public_remarks || '' %></textarea>
+    </div>
+  </section>
+
+  <!-- ② Shoot Logistics -->
+  <section class="picker-section">
+    <h2>Shoot Logistics</h2>
+
+    <div class="field-group">
+      <label>How do I get in? *</label>
+      <div class="q-group q-group--row">
+        <label class="q-option"><input type="radio" name="access_method" value="lockbox"    required <%= query.access_method === 'lockbox'    ? 'checked' : '' %>> Lockbox</label>
+        <label class="q-option"><input type="radio" name="access_method" value="key_pickup" required <%= query.access_method === 'key_pickup' ? 'checked' : '' %>> Key pickup</label>
+        <label class="q-option"><input type="radio" name="access_method" value="agent"      required <%= query.access_method === 'agent'      ? 'checked' : '' %>> Agent present</label>
+        <label class="q-option"><input type="radio" name="access_method" value="other"      required <%= query.access_method === 'other'      ? 'checked' : '' %>> Other</label>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="access_notes">Access notes * <span class="hint">Lockbox code, gate code, parking — anything I need to know</span></label>
+      <textarea id="access_notes" name="access_notes" rows="2" placeholder="e.g. Lockbox on front door, code 4872. Park in driveway." required><%= query.access_notes || '' %></textarea>
+    </div>
+
+    <div class="q-grid">
+      <div class="field-group">
+        <label for="rooms">Rooms / spaces to shoot <span class="hint">Optional</span></label>
+        <input type="number" id="rooms" name="rooms" placeholder="e.g. 8" min="1" max="99" value="<%= query.rooms || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="site_time">Time available on-site <span class="hint">Optional</span></label>
+        <input type="text" id="site_time" name="site_time" placeholder="e.g. 2 hours, flexible" value="<%= query.site_time || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="listing_deadline">Media needed by <span class="hint">Optional</span></label>
+        <input type="date" id="listing_deadline" name="listing_deadline" value="<%= query.listing_deadline || '' %>">
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ Day-of Prep -->
+  <section class="picker-section">
+    <h2>Day-of Prep</h2>
+
+    <div class="q-grid">
+      <div class="field-group">
+        <label>Will the property be show-ready when I arrive?</label>
+        <div class="q-group">
+          <label class="q-option"><input type="radio" name="prop_ready" value="yes"    <%= query.prop_ready === 'yes'    ? 'checked' : '' %>> Yes</label>
+          <label class="q-option"><input type="radio" name="prop_ready" value="no"     <%= query.prop_ready === 'no'     ? 'checked' : '' %>> No — I'll note it</label>
+          <label class="q-option"><input type="radio" name="prop_ready" value="unsure" <%= query.prop_ready === 'unsure' ? 'checked' : '' %>> Not sure yet</label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Will all lights be on and working?</label>
+        <div class="q-group">
+          <label class="q-option"><input type="radio" name="lights_on" value="yes"    <%= query.lights_on === 'yes'    ? 'checked' : '' %>> Yes</label>
+          <label class="q-option"><input type="radio" name="lights_on" value="no"     <%= query.lights_on === 'no'     ? 'checked' : '' %>> No</label>
+          <label class="q-option"><input type="radio" name="lights_on" value="unsure" <%= query.lights_on === 'unsure' ? 'checked' : '' %>> Not sure</label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Will the HVAC be running?</label>
+        <div class="q-group">
+          <label class="q-option"><input type="radio" name="hvac_on" value="yes"    <%= query.hvac_on === 'yes'    ? 'checked' : '' %>> Yes</label>
+          <label class="q-option"><input type="radio" name="hvac_on" value="no"     <%= query.hvac_on === 'no'     ? 'checked' : '' %>> No</label>
+          <label class="q-option"><input type="radio" name="hvac_on" value="unsure" <%= query.hvac_on === 'unsure' ? 'checked' : '' %>> Not sure</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="known_issues">Anything I should know before I arrive? <span class="hint">Optional — bulbs out, damage, clutter, construction</span></label>
+      <textarea id="known_issues" name="known_issues" rows="2" placeholder="e.g. Bulb out in master bath, some boxes in the garage that won't be moved"><%= query.known_issues || '' %></textarea>
+    </div>
+    <div class="field-group">
+      <label for="exterior_issues">Exterior concerns? <span class="hint">Optional — dumpsters, vehicles, landscaping</span></label>
+      <textarea id="exterior_issues" name="exterior_issues" rows="2" placeholder="e.g. Dumpster in driveway until Friday, neighbor's truck often parked out front"><%= query.exterior_issues || '' %></textarea>
+    </div>
+  </section>
+
+  <!-- ④ Media Delivery -->
+  <section class="picker-section">
+    <h2>Media Delivery</h2>
+    <p class="section-sub">Who should receive the gallery link when your media is ready?</p>
+
+    <div class="q-grid">
+      <div class="field-group">
+        <label for="delivery_email">Primary delivery email <span class="hint">Defaults to your booking email</span></label>
+        <input type="email" id="delivery_email" name="delivery_email" placeholder="agent@brokerage.com" value="<%= query.delivery_email || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="co_agent_name">Co-listing agent name <span class="hint">Optional</span></label>
+        <input type="text" id="co_agent_name" name="co_agent_name" placeholder="John Smith" value="<%= query.co_agent_name || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="co_agent_email">Co-listing agent email <span class="hint">Optional — also receives gallery link</span></label>
+        <input type="email" id="co_agent_email" name="co_agent_email" placeholder="coagent@brokerage.com" value="<%= query.co_agent_email || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="tc_name">Transaction coordinator <span class="hint">Optional</span></label>
+        <input type="text" id="tc_name" name="tc_name" placeholder="Jane TC" value="<%= query.tc_name || '' %>">
+      </div>
+      <div class="field-group">
+        <label for="tc_email">TC email <span class="hint">Optional</span></label>
+        <input type="email" id="tc_email" name="tc_email" placeholder="tc@brokerage.com" value="<%= query.tc_email || '' %>">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="agent_notes">Notes for your gallery <span class="hint">Optional — highlights, virtual staging requests, shots to prioritize</span></label>
+      <textarea id="agent_notes" name="agent_notes" rows="2" placeholder="e.g. Prioritize the renovated kitchen and backyard, include virtual staging on the living room"><%= query.agent_notes || '' %></textarea>
+    </div>
+  </section>
+
+  <div class="cta-row">
+    <button type="submit" class="btn-primary">Continue to Scheduling →</button>
+  </div>
+
+</form>
+
+<%- include('_footer') %>

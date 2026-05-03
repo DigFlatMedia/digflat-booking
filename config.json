@@ -21,13 +21,24 @@
       "addon_drone_stills": 15,
       "addon_drone_video": 20,
       "addon_drone_video_bundled": 0,
-      "addon_floor_plan": 20
+      "addon_floor_plan_basic": 20,
+      "addon_floor_plan_furniture": 20,
+      "addon_floor_plan_gla": 20,
+      "addon_floor_plan_3d": 20,
+      "addon_floor_plan_3d_full": 20,
+      "addon_floor_plan_3d_bundle": 20
     }
   },
   "service_area": {
     "free_radius_miles": 50,
-    "max_radius_miles": 50,
-    "auto_flag_over_max": true
+    "max_radius_miles": 100,
+    "auto_flag_over_max": true,
+    "trip_charge": {
+      "enabled": true,
+      "free_miles": 50,
+      "rate": 0.15,
+      "label": "Travel fee"
+    }
   },
   "hold_minutes_pending_payment": 15,
   "operator": {

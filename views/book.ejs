@@ -4,24 +4,82 @@
   <h1>Schedule Your Shoot</h1>
 </div>
 
+<%
+  const _sp = '?package=' + encodeURIComponent(packageId) + '&addons=' + encodeURIComponent(addonIds.join(',')) + '&rush=' + (rush ? '1' : '');
+  const _dp = _sp + Object.entries(query).filter(([k]) => !['package','addons','rush','bundle'].includes(k)).map(([k,v]) => '&' + encodeURIComponent(k) + '=' + encodeURIComponent(v||'')).join('');
+%>
 <div class="steps">
-  <span class="step done">1. Choose Services</span>
-  <span class="step active">2. Pick Date &amp; Time</span>
-  <span class="step">3. Your Info</span>
-  <span class="step">4. Pay &amp; Confirm</span>
+  <a class="step done" href="/your-info">1. Your Info</a>
+  <a class="step done" href="/<%= _sp %>">2. Choose Services</a>
+  <a class="step done" href="/details<%= _dp %>">3. Property Details</a>
+  <span class="step active">4. Pick Date &amp; Time</span>
+  <span class="step future">5. Pay &amp; Confirm</span>
 </div>
 
 <form id="book-form" action="/book" method="POST" class="book-form" novalidate>
 
-  <!-- Hidden selection state -->
+  <!-- Hidden booking state -->
   <input type="hidden" name="packageId" value="<%= packageId %>">
   <% for (const a of addonIds) { %>
   <input type="hidden" name="addonIds" value="<%= a %>">
   <% } %>
-  <input type="hidden" name="rush" value="<%= rush ? '1' : '0' %>">
+  <input type="hidden" name="rush"     value="<%= rush ? '1' : '0' %>">
   <input type="hidden" name="startISO" id="startISO" value="">
   <!-- Honeypot -->
-  <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+  <input type="text"   name="website"  style="display:none" tabindex="-1" autocomplete="off">
+
+  <!-- Property data (carried from /details via query params) -->
+  <%
+    const propAddr  = [query.address, query.city, query.state, query.zip].filter(Boolean).join(', ');
+    const accessStr = [query.access_method, query.access_notes].filter(Boolean).join(' — ');
+    const noteParts = [
+      query.rooms            ? 'Rooms: '       + query.rooms            : '',
+      query.prop_status      ? 'Status: '      + query.prop_status      : '',
+      query.site_time        ? 'Time on site: '+ query.site_time        : '',
+      query.listing_deadline ? 'Deadline: '    + query.listing_deadline : '',
+      query.prop_ready       ? 'Ready: '       + query.prop_ready       : '',
+      query.known_issues     ? 'Issues: '      + query.known_issues     : '',
+      query.exterior_issues  ? 'Exterior: '    + query.exterior_issues  : '',
+      query.lights_on        ? 'Lights: '      + query.lights_on        : '',
+      query.hvac_on          ? 'HVAC: '        + query.hvac_on          : '',
+    ].filter(Boolean).join(' | ');
+  %>
+  <input type="hidden" name="propertyAddress"    value="<%= propAddr %>">
+  <input type="hidden" name="propertySqft"       value="<%= query.sqft || '' %>">
+  <input type="hidden" name="accessInstructions" value="<%= accessStr %>">
+  <input type="hidden" name="notes"              value="<%= noteParts %>">
+  <input type="hidden" name="mlsNumber"          value="<%= query.mls_number || '' %>">
+  <input type="hidden" name="listPrice"          value="<%= query.list_price || '' %>">
+  <input type="hidden" name="bedrooms"           value="<%= query.bedrooms || '' %>">
+  <input type="hidden" name="bathrooms"          value="<%= query.bathrooms || '' %>">
+  <input type="hidden" name="yearBuilt"          value="<%= query.year_built || '' %>">
+  <input type="hidden" name="lotSize"            value="<%= query.lot_size || '' %>">
+  <input type="hidden" name="propStatus"         value="<%= query.prop_status || '' %>">
+  <input type="hidden" name="publicRemarks"      value="<%= query.public_remarks || '' %>">
+  <input type="hidden" name="propertyType"       value="<%= query.property_type || 'residential' %>">
+  <input type="hidden" name="hasBasement"        value="<%= query.has_basement || '' %>">
+  <input type="hidden" name="hasGarage"          value="<%= query.has_garage || '' %>">
+  <input type="hidden" name="hasBarn"            value="<%= query.has_barn || '' %>">
+  <input type="hidden" name="hasPoolHouse"       value="<%= query.has_pool_house || '' %>">
+  <input type="hidden" name="hasGuestHouse"      value="<%= query.has_guest_house || '' %>">
+  <input type="hidden" name="hasWorkshop"        value="<%= query.has_workshop || '' %>">
+  <input type="hidden" name="hasShed"            value="<%= query.has_shed || '' %>">
+  <input type="hidden" name="hasCarriageHouse"   value="<%= query.has_carriage_house || '' %>">
+  <input type="hidden" name="hasBoathouse"       value="<%= query.has_boathouse || '' %>">
+  <input type="hidden" name="rooms"              value="<%= query.rooms || '' %>">
+  <input type="hidden" name="siteTime"           value="<%= query.site_time || '' %>">
+  <input type="hidden" name="listingDeadline"    value="<%= query.listing_deadline || '' %>">
+  <input type="hidden" name="propReady"          value="<%= query.prop_ready || '' %>">
+  <input type="hidden" name="lightsOn"           value="<%= query.lights_on || '' %>">
+  <input type="hidden" name="hvacOn"             value="<%= query.hvac_on || '' %>">
+  <input type="hidden" name="knownIssues"        value="<%= query.known_issues || '' %>">
+  <input type="hidden" name="exteriorIssues"     value="<%= query.exterior_issues || '' %>">
+  <input type="hidden" name="deliveryEmail"      value="<%= query.delivery_email || '' %>">
+  <input type="hidden" name="coAgentName"        value="<%= query.co_agent_name || '' %>">
+  <input type="hidden" name="coAgentEmail"       value="<%= query.co_agent_email || '' %>">
+  <input type="hidden" name="tcName"             value="<%= query.tc_name || '' %>">
+  <input type="hidden" name="tcEmail"            value="<%= query.tc_email || '' %>">
+  <input type="hidden" name="agentNotes"         value="<%= query.agent_notes || '' %>">
 
   <div class="book-layout">
 
@@ -46,7 +104,7 @@
       </section>
     </div>
 
-    <!-- Right: contact form + order summary -->
+    <!-- Right: order summary + booking-as card + submit -->
     <div class="book-right">
 
       <div class="order-summary card">
@@ -61,48 +119,17 @@
         <p class="os-note">Full payment due at booking via Wave invoice.</p>
       </div>
 
-      <section class="form-section card">
-        <h2>Your Information</h2>
-
-        <div class="field-group">
-          <label>Full Name *</label>
-          <input type="text" name="name" required value="<%= prefill?.name || '' %>" placeholder="Jane Smith">
+      <!-- Booking-as card -->
+      <div class="booking-as card">
+        <div class="booking-as-info">
+          <strong><%= contact.name %></strong>
+          <span><%= contact.email %></span>
+          <span><%= contact.phone %></span>
+          <% if (contact.brokerage) { %><span><%= contact.brokerage %></span><% } %>
+          <% if (contact.brokerageAddress) { %><span><%= contact.brokerageAddress %></span><% } %>
         </div>
-        <div class="field-group">
-          <label>Email *</label>
-          <input type="email" name="email" required value="<%= sessionEmail || prefill?.email || '' %>" placeholder="jane@brokerage.com">
-        </div>
-        <div class="field-group">
-          <label>Phone *</label>
-          <input type="tel" name="phone" required value="<%= prefill?.phone || '' %>" placeholder="(419) 555-0100">
-        </div>
-        <div class="field-group">
-          <label>Brokerage</label>
-          <input type="text" name="brokerage" value="<%= prefill?.brokerage || '' %>" placeholder="RE/MAX, Coldwell Banker…">
-        </div>
-
-        <h2 style="margin-top:24px">Property</h2>
-        <div class="field-group">
-          <label>Property Address *</label>
-          <input type="text" name="propertyAddress" required placeholder="123 Main St, Lexington OH 44904">
-        </div>
-        <div class="field-group">
-          <label>Square Footage *</label>
-          <input type="number" name="propertySqft" required placeholder="2200" min="0">
-        </div>
-        <div class="field-group">
-          <label>Lockbox / Access Instructions *</label>
-          <textarea name="accessInstructions" rows="2" placeholder="Lockbox on front door, code 1234…" required></textarea>
-        </div>
-        <div class="field-group">
-          <label>Seller Contact (name &amp; phone)</label>
-          <input type="text" name="sellerContact" placeholder="Tom Seller — (419) 555-0200">
-        </div>
-        <div class="field-group">
-          <label>Notes for photographer</label>
-          <textarea name="notes" rows="2" placeholder="Gate code, special requests, parking notes…"></textarea>
-        </div>
-      </section>
+        <a href="/your-info" class="booking-as-edit">Edit</a>
+      </div>
 
       <div class="policy-block">
         <h3>Payment &amp; Policies</h3>
@@ -130,10 +157,10 @@
 <script>
 window.BOOK_CONFIG = {
   packageId: '<%= packageId %>',
-  addonIds: <%- JSON.stringify(addonIds) %>,
-  minDate: '<%= minDate %>',
-  maxDate: '<%= maxDate %>',
-  apiBase: '',
+  addonIds:  <%- JSON.stringify(addonIds) %>,
+  minDate:   '<%= minDate %>',
+  maxDate:   '<%= maxDate %>',
+  apiBase:   '',
 };
 </script>
 <%- include('_footer') %>

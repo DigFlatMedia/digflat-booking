@@ -2,6 +2,36 @@
 'use strict';
 
 // =====================================================================
+// PROPERTY TYPE TOGGLE
+// =====================================================================
+function setPropertyType(type) {
+  const res = document.getElementById('residential-services');
+  const com = document.getElementById('commercial-services');
+  const inp = document.getElementById('property_type');
+  const btnRes = document.getElementById('btn-residential');
+  const btnCom = document.getElementById('btn-commercial');
+  if (!res) return;
+  if (type === 'commercial') {
+    res.style.display = 'none';
+    com.style.display = '';
+    btnRes.classList.remove('active');
+    btnCom.classList.add('active');
+  } else {
+    res.style.display = '';
+    com.style.display = 'none';
+    btnRes.classList.add('active');
+    btnCom.classList.remove('active');
+  }
+  if (inp) inp.value = type;
+}
+
+// Initialise from hidden input value on page load.
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('property_type');
+  if (inp) setPropertyType(inp.value);
+});
+
+// =====================================================================
 // HOME — service picker + live price calc
 // =====================================================================
 (function initHome() {
@@ -12,6 +42,8 @@
   const sqftInput     = document.getElementById('sqft');
   const bundleRadios  = () => [...document.querySelectorAll('.bundle-radio')];
   const pkgRadios     = () => [...document.querySelectorAll('.pkg-radio')];
+  const videoRadios     = () => [...document.querySelectorAll('.video-radio')];
+  const floorplanRadios = () => [...document.querySelectorAll('.floorplan-radio')];
   const addonChecks   = () => [...document.querySelectorAll('.addon-check')];
   const rushCheck     = document.getElementById('rush-check');
   const summary       = document.getElementById('price-summary');
@@ -49,6 +81,11 @@
     bundleRadios().forEach(b => b.checked = false);
     updateSummary();
   }));
+  videoRadios().forEach(r => r.addEventListener('change', () => {
+    bundleRadios().forEach(b => b.checked = false);
+    updateSummary();
+  }));
+  floorplanRadios().forEach(r => r.addEventListener('change', updateSummary));
   addonChecks().forEach(c => c.addEventListener('change', () => {
     bundleRadios().forEach(b => b.checked = false);
     // Enforce requires.
@@ -84,6 +121,10 @@
     const pkgR = pkgRadios().find(r => r.checked);
     const packageId = pkgR?.value || pricing.photo_packages.find(p => p.is_default)?.id || pricing.photo_packages[0].id;
     const addonIds = addonChecks().filter(c => c.checked).map(c => c.value);
+    const videoR = videoRadios().find(r => r.checked);
+    if (videoR && videoR.value !== 'none') addonIds.push(videoR.value);
+    const floorplanR = floorplanRadios().find(r => r.checked);
+    if (floorplanR && floorplanR.value !== 'none') addonIds.push(floorplanR.value);
     const rush = rushCheck?.checked || false;
     const bundleR = bundleRadios().find(r => r.checked);
     const bundleId = bundleR?.value || null;
@@ -178,18 +219,18 @@
   const cfg = window.BOOK_CONFIG;
   if (!cfg) return;
 
-  const calContainer = document.getElementById('calendar-grid');
-  const monthLabel   = document.getElementById('cal-month-label');
-  const prevBtn      = document.getElementById('cal-prev');
-  const nextBtn      = document.getElementById('cal-next');
-  const slotsSection = document.getElementById('slots-section');
-  const slotsGrid    = document.getElementById('slots-grid');
-  const slotsEmpty   = document.getElementById('slots-empty');
-  const startISOInput = document.getElementById('startISO');
-  const submitBtn    = document.getElementById('submit-btn');
-  const submitHint   = document.getElementById('submit-hint');
-  const agreeCheck   = document.getElementById('agree-check');
-  const form         = document.getElementById('book-form');
+  const calContainer  = document.getElementById('calendar-grid');
+  const monthLabel    = document.getElementById('cal-month-label');
+  const prevBtn       = document.getElementById('cal-prev');
+  const nextBtn       = document.getElementById('cal-next');
+  const slotsSection  = document.getElementById('slots-section');
+  const slotsGrid     = document.getElementById('slots-grid');
+  const slotsEmpty    = document.getElementById('slots-empty');
+  const startISOInput = document.getElementById('startISO');   // present only on old combined page
+  const continueBtn   = document.getElementById('continue-btn') || document.getElementById('submit-btn');
+  const submitHint    = document.getElementById('submit-hint');
+  const agreeCheck    = document.getElementById('agree-check'); // present only on old combined page
+  const form          = document.getElementById('book-form');   // present only on old combined page
 
   let currentYear, currentMonth, selectedDate = null, selectedSlot = null;
   const today = new Date();
@@ -202,9 +243,10 @@
   prevBtn?.addEventListener('click', () => { currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; } renderCalendar(); });
   nextBtn?.addEventListener('click', () => { currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; } renderCalendar(); });
   agreeCheck?.addEventListener('change', validateSubmit);
+  // Legacy combined-page form submit guard (kept for backward compat).
   form?.addEventListener('submit', e => {
     if (!selectedSlot || !agreeCheck?.checked) { e.preventDefault(); return; }
-    startISOInput.value = selectedSlot;
+    if (startISOInput) startISOInput.value = selectedSlot;
   });
 
   function renderCalendar() {
@@ -225,13 +267,12 @@
       const isSelected = ymd === selectedDate;
       let cls = 'cal-day';
       if (isSelected) cls += ' selected';
-      else if (isPast || isTooFar || isWeekend) cls += ' unavailable past';
       else cls += ' available has-slots';
       if (isToday) cls += ' today';
       html += `<button type="button" class="${cls}" data-ymd="${ymd}">${d}</button>`;
     }
     calContainer.innerHTML = html;
-    calContainer.querySelectorAll('.cal-day.available').forEach(btn => {
+    calContainer.querySelectorAll('.cal-day').forEach(btn => {
       btn.addEventListener('click', () => selectDate(btn.dataset.ymd));
     });
   }
@@ -239,7 +280,7 @@
   async function selectDate(ymd) {
     selectedDate = ymd;
     selectedSlot = null;
-    startISOInput.value = '';
+    if (startISOInput) startISOInput.value = '';
     validateSubmit();
     renderCalendar();
     slotsSection.style.display = 'none';
@@ -273,17 +314,35 @@
 
   function selectSlot(iso) {
     selectedSlot = iso;
-    startISOInput.value = iso;
+    if (startISOInput) startISOInput.value = iso;
     slotsGrid.querySelectorAll('.slot-btn').forEach(b => b.classList.toggle('selected', b.dataset.iso === iso));
     validateSubmit();
   }
 
   function validateSubmit() {
-    const ready = selectedSlot && agreeCheck?.checked;
-    submitBtn.disabled = !ready;
-    submitHint.textContent = !selectedSlot ? 'Select a date and time to continue.'
-      : !agreeCheck?.checked ? 'Agree to the booking policies to continue.'
-      : '';
+    // On the new split step-3 page: agreeCheck is not present; only slot is required.
+    const ready = agreeCheck ? (!!selectedSlot && agreeCheck.checked) : !!selectedSlot;
+    if (continueBtn) {
+      continueBtn.disabled = !ready;
+      // New step-3 flow: wire "Continue" to navigate to /your-info with params.
+      if (ready && !form && cfg.baseParams !== undefined) {
+        continueBtn.onclick = function() {
+          const p = new URLSearchParams(cfg.baseParams || {});
+          p.set('package', cfg.packageId);
+          p.set('addons', cfg.addonIds.join(','));
+          if (cfg.rush) p.set('rush', '1');
+          p.set('startISO', selectedSlot);
+          window.location.href = '/your-info?' + p.toString();
+        };
+      }
+    }
+    if (submitHint) {
+      submitHint.textContent = !selectedSlot ? 'Select a date and time to continue.'
+        : agreeCheck && !agreeCheck.checked ? 'Agree to the booking policies to continue.'
+        : '';
+      if (submitHint.textContent) submitHint.style.display = '';
+      else submitHint.style.display = 'none';
+    }
   }
 
   function fmt(d) {

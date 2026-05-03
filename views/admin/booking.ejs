@@ -33,16 +33,25 @@
       <div><dt class="text-gray-500">Date &amp; Time</dt>
         <dd class="font-medium"><%= booking.schedule?.startISO ? new Date(booking.schedule.startISO).toLocaleString('en-US',{timeZone:booking.schedule.timezone||'America/New_York',weekday:'long',month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : '—' %></dd>
       </div>
+      <div><dt class="text-gray-500">Duration</dt><dd><%= booking.schedule?.durationMinutes ? booking.schedule.durationMinutes + ' min' : '—' %></dd></div>
       <div><dt class="text-gray-500">Property</dt><dd><%= booking.property.address %></dd></div>
-      <div><dt class="text-gray-500">Sqft</dt><dd><%= booking.property.sqft?.toLocaleString() %></dd></div>
+      <div><dt class="text-gray-500">Sqft</dt><dd><%= booking.property.sqft?.toLocaleString() || '—' %></dd></div>
+      <div><dt class="text-gray-500">Type</dt><dd><%= booking.property.propertyType || 'residential' %></dd></div>
       <div><dt class="text-gray-500">Access</dt><dd><%= booking.property.accessInstructions || '—' %></dd></div>
-      <div><dt class="text-gray-500">Seller Contact</dt><dd><%= booking.property.sellerContact || '—' %></dd></div>
-      <div><dt class="text-gray-500">Notes</dt><dd><%= booking.property.notes || '—' %></dd></div>
+      <% if (booking.property.rooms) { %>
+      <div><dt class="text-gray-500">Rooms to shoot</dt><dd><%= booking.property.rooms %></dd></div>
+      <% } %>
+      <% if (booking.property.siteTime) { %>
+      <div><dt class="text-gray-500">Time on site</dt><dd><%= booking.property.siteTime %></dd></div>
+      <% } %>
+      <% if (booking.property.listingDeadline) { %>
+      <div><dt class="text-gray-500">Media needed by</dt><dd><%= booking.property.listingDeadline %></dd></div>
+      <% } %>
       <% if (booking.distanceMiles) { %>
       <div><dt class="text-gray-500">Distance</dt><dd>~<%= Math.round(booking.distanceMiles) %> miles</dd></div>
       <% } %>
       <% if (booking.googleEventId) { %>
-      <div><dt class="text-gray-500">Calendar Event</dt><dd class="text-green-600">✓ Added to Google Calendar</dd></div>
+      <div><dt class="text-gray-500">Calendar</dt><dd class="text-green-600">✓ Added to Google Calendar</dd></div>
       <% } %>
     </dl>
   </div>
@@ -55,8 +64,88 @@
       <div><dt class="text-gray-500">Email</dt><dd><a href="mailto:<%= booking.customer.email %>" class="text-blue-600"><%= booking.customer.email %></a></dd></div>
       <div><dt class="text-gray-500">Phone</dt><dd><a href="tel:<%= booking.customer.phone %>"><%= booking.customer.phone %></a></dd></div>
       <div><dt class="text-gray-500">Brokerage</dt><dd><%= booking.customer.brokerage || '—' %></dd></div>
+      <% if (booking.customer.brokerageAddress) { %>
+      <div><dt class="text-gray-500">Brokerage Address</dt><dd><%= booking.customer.brokerageAddress %></dd></div>
+      <% } %>
+    </dl>
+
+    <% if (booking.delivery && (booking.delivery.email || booking.delivery.coAgentName || booking.delivery.tcName || booking.delivery.agentNotes)) { %>
+    <h3 class="font-semibold text-sm mt-5 mb-2 text-gray-700">Media Delivery</h3>
+    <dl class="space-y-2 text-sm">
+      <% if (booking.delivery.email) { %>
+      <div><dt class="text-gray-500">Delivery email</dt><dd><%= booking.delivery.email %></dd></div>
+      <% } %>
+      <% if (booking.delivery.coAgentName) { %>
+      <div><dt class="text-gray-500">Co-agent</dt><dd><%= booking.delivery.coAgentName %><% if (booking.delivery.coAgentEmail) { %> · <a href="mailto:<%= booking.delivery.coAgentEmail %>" class="text-blue-600"><%= booking.delivery.coAgentEmail %></a><% } %></dd></div>
+      <% } %>
+      <% if (booking.delivery.tcName) { %>
+      <div><dt class="text-gray-500">Transaction coordinator</dt><dd><%= booking.delivery.tcName %><% if (booking.delivery.tcEmail) { %> · <a href="mailto:<%= booking.delivery.tcEmail %>" class="text-blue-600"><%= booking.delivery.tcEmail %></a><% } %></dd></div>
+      <% } %>
+      <% if (booking.delivery.agentNotes) { %>
+      <div><dt class="text-gray-500">Agent notes</dt><dd class="whitespace-pre-line"><%= booking.delivery.agentNotes %></dd></div>
+      <% } %>
+    </dl>
+    <% } %>
+  </div>
+
+  <!-- Listing info -->
+  <% const l = booking.property?.listing; if (l && Object.values(l).some(Boolean)) { %>
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="font-semibold text-lg mb-4">Listing Info</h2>
+    <dl class="space-y-2 text-sm">
+      <% if (l.mlsNumber) { %>
+      <div><dt class="text-gray-500">MLS #</dt><dd><%= l.mlsNumber %></dd></div>
+      <% } %>
+      <% if (l.listPrice) { %>
+      <div><dt class="text-gray-500">List price</dt><dd><%= l.listPrice %></dd></div>
+      <% } %>
+      <% if (l.propStatus) { %>
+      <div><dt class="text-gray-500">Status</dt><dd><%= l.propStatus %></dd></div>
+      <% } %>
+      <% if (l.bedrooms || l.bathrooms) { %>
+      <div><dt class="text-gray-500">Beds / Baths</dt><dd><%= [l.bedrooms ? l.bedrooms + ' bed' : '', l.bathrooms ? l.bathrooms + ' bath' : ''].filter(Boolean).join(' / ') %></dd></div>
+      <% } %>
+      <% if (l.yearBuilt) { %>
+      <div><dt class="text-gray-500">Year built</dt><dd><%= l.yearBuilt %></dd></div>
+      <% } %>
+      <% if (l.lotSize) { %>
+      <div><dt class="text-gray-500">Lot size</dt><dd><%= l.lotSize %></dd></div>
+      <% } %>
+      <% if (l.publicRemarks) { %>
+      <div class="pt-1"><dt class="text-gray-500 mb-1">Public remarks</dt><dd class="whitespace-pre-line text-gray-700"><%= l.publicRemarks %></dd></div>
+      <% } %>
     </dl>
   </div>
+  <% } %>
+
+  <!-- Day-of prep -->
+  <% const p = booking.property; const hasPrepInfo = p && (p.propReady || p.lightsOn || p.hvacOn || p.knownIssues || p.exteriorIssues || (p.spaces && Object.values(p.spaces).some(Boolean))); if (hasPrepInfo) { %>
+  <div class="bg-white rounded-lg shadow p-6">
+    <h2 class="font-semibold text-lg mb-4">Day-of Prep</h2>
+    <dl class="space-y-2 text-sm">
+      <% if (p.propReady) { %>
+      <div><dt class="text-gray-500">Show-ready</dt><dd><%= p.propReady %></dd></div>
+      <% } %>
+      <% if (p.lightsOn) { %>
+      <div><dt class="text-gray-500">Lights on</dt><dd><%= p.lightsOn %></dd></div>
+      <% } %>
+      <% if (p.hvacOn) { %>
+      <div><dt class="text-gray-500">HVAC on</dt><dd><%= p.hvacOn %></dd></div>
+      <% } %>
+      <% if (p.knownIssues) { %>
+      <div><dt class="text-gray-500">Known issues</dt><dd><%= p.knownIssues %></dd></div>
+      <% } %>
+      <% if (p.exteriorIssues) { %>
+      <div><dt class="text-gray-500">Exterior</dt><dd><%= p.exteriorIssues %></dd></div>
+      <% } %>
+      <% const spaces = p.spaces; if (spaces) {
+           const activeSpaces = Object.entries(spaces).filter(([,v]) => v).map(([k]) => k.replace(/([A-Z])/g, ' $1').toLowerCase());
+           if (activeSpaces.length) { %>
+      <div><dt class="text-gray-500">Additional spaces</dt><dd class="capitalize"><%= activeSpaces.join(', ') %></dd></div>
+      <% } } %>
+    </dl>
+  </div>
+  <% } %>
 
   <!-- Order -->
   <div class="bg-white rounded-lg shadow p-6">
@@ -74,6 +163,9 @@
     <div class="flex justify-between text-base font-bold pt-2 mt-1">
       <span>Total</span><span>$<%= booking.quote.total.toFixed(2) %></span>
     </div>
+    <% if (booking.quote.savings > 0) { %>
+    <p class="text-xs text-green-600 mt-2">Bundle savings: $<%= booking.quote.savings.toFixed(2) %></p>
+    <% } %>
   </div>
 
   <!-- Actions -->

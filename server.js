@@ -13,6 +13,7 @@ import { sameOriginPost } from './lib/csrf.js';
 import {
   adminAuth, cookieParser, readSession, setSessionCookie, clearSessionCookie,
   issueMagicLink, consumeMagicLink, getAccount, upsertAccount,
+  setContactDraft, readContactDraft, clearContactDraft,
 } from './lib/auth.js';
 import {
   getPricing, invalidatePricing, recommendPackage, calculate, matchBundle, nearestBundle,
@@ -46,7 +47,7 @@ app.post('/webhook/wave', express.raw({ type: '*/*', limit: '512kb' }), waveWebh
 app.use(express.urlencoded({ extended: true, limit: '256kb' }));
 app.use(express.json({ limit: '256kb' }));
 app.use(cookieParser());
-app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+app.use('/public', express.static(path.join(__dirname, 'public'), { maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0 }));
 
 // Per-request locals (config, branding, session).
 app.use(async (req, res, next) => {
@@ -116,18 +117,86 @@ app.get('/api/availability', rateLimit({ max: 120 }), async (req, res, next) => 
   } catch (e) { next(e); }
 });
 
-// Step 2: book form. Selections come in via querystring.
+// Step 2: property details form.
+app.get('/details', (req, res) => {
+  res.render('details', { query: req.query });
+});
+
+// Step 3: book form. Selections come in via querystring.
 app.get('/book', async (req, res, next) => {
   try {
     const pricing = await getPricing();
     const packageId = req.query.package || pricing.photo_packages.find(p => p.is_default)?.id || pricing.photo_packages[0].id;
     const addonIds = (req.query.addons || '').split(',').filter(Boolean);
+    const video = req.query.video;
+    if (video && video !== 'none' && !addonIds.includes(video)) addonIds.push(video);
+    const floorplan = req.query.floorplan;
+    if (floorplan && floorplan !== 'none' && !addonIds.includes(floorplan)) addonIds.push(floorplan);
     const rush = req.query.rush === '1';
-    const quote = calculate(pricing, { packageId, addonIds, rush });
     const config = res.locals.config;
+
+    // Best-effort distance check so the trip charge shows in the order summary
+    // before the customer submits. Silently skipped if address isn't provided yet.
+    let tripMiles = null;
+    const propertyAddress = [req.query.address, req.query.city, req.query.state, req.query.zip]
+      .filter(Boolean).join(', ');
+    if (propertyAddress) {
+      try {
+        const timeout = new Promise(r => setTimeout(r, 2000, null));
+        tripMiles = await Promise.race([
+          Google.distanceMiles(config.operator.base_zip, propertyAddress),
+          timeout,
+        ]);
+      } catch (e) {
+        console.warn('[book GET] distance check failed:', e.message);
+      }
+    }
+
+    const quote = calculate(pricing, { packageId, addonIds, rush, tripMiles }, config);
     const minDate = addDaysYmd(todayYmdInTz(config.schedule.timezone), Math.ceil((config.schedule.lead_time_hours || 0) / 24), config.schedule.timezone);
     const maxDate = addDaysYmd(todayYmdInTz(config.schedule.timezone), config.schedule.max_advance_days || 60, config.schedule.timezone);
-    res.render('book', { pricing, quote, packageId, addonIds, rush, minDate, maxDate, prefill: res.locals.session ? await getAccount(res.locals.session.email) : null, sessionEmail: res.locals.session?.email || '' });
+    // Contact info from session or guest cookie set in step 1.
+    const contact = res.locals.session
+      ? (await getAccount(res.locals.session.email) || { email: res.locals.session.email })
+      : readContactDraft(req);
+    // If no contact info yet, bounce back to step 1.
+    if (!contact?.email) return res.redirect('/your-info');
+    res.render('book', { pricing, quote, packageId, addonIds, rush, minDate, maxDate, query: req.query, tripMiles, contact });
+  } catch (e) { next(e); }
+});
+
+// Step 1: collect contact info / sign in. No booking data yet.
+app.get('/your-info', async (req, res, next) => {
+  try {
+    const session  = res.locals.session;
+    const prefill  = session ? await getAccount(session.email) : readContactDraft(req);
+    res.render('your-info', {
+      prefill,
+      sessionEmail: session?.email || '',
+      returnPath: req.originalUrl,
+      error: req.query.error || null,
+    });
+  } catch (e) { next(e); }
+});
+
+// POST step 1: save contact info to signed cookie, redirect to service selection.
+app.post('/your-info', sameOriginPost(PUBLIC_URL), rateLimit({ max: 30 }), async (req, res, next) => {
+  try {
+    if (req.body.website) return res.status(400).send('Spam'); // honeypot
+    const name             = (req.body.name              || '').trim();
+    const email            = (req.body.email             || '').trim().toLowerCase();
+    const phone            = (req.body.phone             || '').trim();
+    const brokerage        = (req.body.brokerage         || '').trim();
+    const brokerageAddress = (req.body.brokerage_address || '').trim();
+    if (!name || !email || !phone) return res.redirect('/your-info?error=missing');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.redirect('/your-info?error=email');
+    // Persist to a signed cookie so it survives the service → details → book steps.
+    setContactDraft(res, { name, email, phone, brokerage, brokerageAddress });
+    // If they have an account, keep the session cookie in sync.
+    if (res.locals.session?.email === email) {
+      await upsertAccount(email, { name, phone, brokerage, brokerageAddress });
+    }
+    res.redirect('/');
   } catch (e) { next(e); }
 });
 
@@ -142,8 +211,21 @@ app.post('/book', rateLimit({ max: 10 }), async (req, res, next) => {
     const addonIds = [].concat(req.body.addonIds || []).filter(Boolean);
     const rush = req.body.rush === 'on' || req.body.rush === '1';
 
-    const required = ['name', 'email', 'phone', 'propertyAddress', 'propertySqft', 'startISO'];
+    // Contact info: prefer session account, then guest draft cookie, then form body (legacy fallback).
+    const sessionContact = res.locals.session
+      ? (await getAccount(res.locals.session.email) || { email: res.locals.session.email })
+      : null;
+    const draftContact = readContactDraft(req);
+    const contactSrc   = sessionContact || draftContact || {};
+    const contactName             = contactSrc.name             || req.body.name             || '';
+    const contactEmail            = (contactSrc.email           || req.body.email            || '').toLowerCase();
+    const contactPhone            = contactSrc.phone            || req.body.phone            || '';
+    const contactBrokerage        = contactSrc.brokerage        || req.body.brokerage        || '';
+    const contactBrokerageAddress = contactSrc.brokerageAddress || req.body.brokerageAddress || '';
+
+    const required = ['propertyAddress', 'propertySqft', 'startISO'];
     for (const f of required) if (!req.body[f]) return res.status(400).send(`Missing field: ${f}`);
+    if (!contactName || !contactEmail || !contactPhone) return res.status(400).send('Missing contact info — please start from step 1.');
 
     const sqft = Number(req.body.propertySqft) || 0;
     const startISO = req.body.startISO;
@@ -180,7 +262,7 @@ app.post('/book', rateLimit({ max: 10 }), async (req, res, next) => {
       }
     } catch (e) { console.error('[book] distance check failed:', e.message); }
 
-    const quote = calculate(pricing, { packageId, addonIds, rush });
+    const quote = calculate(pricing, { packageId, addonIds, rush, tripMiles: distanceMiles }, config);
 
     // Build booking record.
     const bookingId = newId();
@@ -192,17 +274,62 @@ app.post('/book', rateLimit({ max: 10 }), async (req, res, next) => {
       createdAt: Date.now(),
       holdExpiresAt: Date.now() + (config.hold_minutes_pending_payment || 15) * 60000,
       customer: {
-        name: req.body.name,
-        email: req.body.email.toLowerCase(),
-        phone: req.body.phone,
-        brokerage: req.body.brokerage || '',
+        name: contactName,
+        email: contactEmail,
+        phone: contactPhone,
+        brokerage: contactBrokerage,
+        brokerageAddress: contactBrokerageAddress,
       },
       property: {
+        // Core address
         address: req.body.propertyAddress,
         sqft,
+        propertyType: req.body.propertyType || 'residential',
+        // Listing details
+        listing: {
+          mlsNumber:      req.body.mlsNumber      || '',
+          listPrice:      req.body.listPrice       || '',
+          bedrooms:       req.body.bedrooms        || '',
+          bathrooms:      req.body.bathrooms       || '',
+          yearBuilt:      req.body.yearBuilt       || '',
+          lotSize:        req.body.lotSize         || '',
+          propStatus:     req.body.propStatus      || '',
+          publicRemarks:  req.body.publicRemarks   || '',
+        },
+        // Additional spaces
+        spaces: {
+          basement:     req.body.hasBasement     === '1',
+          garage:       req.body.hasGarage       === '1',
+          barn:         req.body.hasBarn         === '1',
+          poolHouse:    req.body.hasPoolHouse    === '1',
+          guestHouse:   req.body.hasGuestHouse   === '1',
+          workshop:     req.body.hasWorkshop     === '1',
+          shed:         req.body.hasShed         === '1',
+          carriageHouse:req.body.hasCarriageHouse=== '1',
+          boathouse:    req.body.hasBoathouse    === '1',
+        },
+        // Access & logistics
         accessInstructions: req.body.accessInstructions || '',
-        sellerContact: req.body.sellerContact || '',
+        rooms:            req.body.rooms            || '',
+        siteTime:         req.body.siteTime         || '',
+        listingDeadline:  req.body.listingDeadline  || '',
+        // Day-of prep
+        propReady:        req.body.propReady        || '',
+        lightsOn:         req.body.lightsOn         || '',
+        hvacOn:           req.body.hvacOn           || '',
+        knownIssues:      req.body.knownIssues      || '',
+        exteriorIssues:   req.body.exteriorIssues   || '',
+        // Legacy composite notes
         notes: req.body.notes || '',
+      },
+      // Media delivery recipients
+      delivery: {
+        email:        req.body.deliveryEmail  || '',
+        coAgentName:  req.body.coAgentName    || '',
+        coAgentEmail: req.body.coAgentEmail   || '',
+        tcName:       req.body.tcName         || '',
+        tcEmail:      req.body.tcEmail        || '',
+        agentNotes:   req.body.agentNotes     || '',
       },
       selection: { packageId, addonIds, rush },
       quote,
@@ -220,14 +347,16 @@ app.post('/book', rateLimit({ max: 10 }), async (req, res, next) => {
       return db;
     });
 
-    // If logged in, persist contact info.
+    // Persist contact info to account (session users) and clear the guest draft cookie.
     if (res.locals.session?.email) {
       await upsertAccount(res.locals.session.email, {
         name: booking.customer.name,
         phone: booking.customer.phone,
         brokerage: booking.customer.brokerage,
+        brokerageAddress: booking.customer.brokerageAddress,
       });
     }
+    clearContactDraft(res);
 
     if (needsApproval) {
       // Notify operator; show holding-page to customer.
@@ -269,6 +398,35 @@ app.post('/book', rateLimit({ max: 10 }), async (req, res, next) => {
     // Redirect to Wave's hosted pay page.
     return res.redirect(invoice.viewUrl);
   } catch (e) { next(e); }
+});
+
+// Preview: renders the booking confirmation page with sample data (dev/design aid).
+app.get('/booking/preview', (_req, res) => {
+  const now = new Date();
+  const start = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 days from now
+  start.setHours(10, 0, 0, 0);
+  const end = new Date(start.getTime() + 90 * 60 * 1000);
+  res.render('booking', {
+    booking: {
+      id: 'PREVIEW',
+      token: 'preview',
+      status: 'pending',
+      createdAt: Date.now(),
+      customer: { name: 'Jane Smith', email: 'jane@brokerage.com', phone: '(419) 555-0100', brokerage: 'RE/MAX' },
+      property: { address: '123 Main St, Mansfield, OH 44901', sqft: 2200, accessInstructions: 'Lockbox on front door — code 4872', sellerContact: '' },
+      quote: {
+        lineItems: [
+          { name: 'Single Family Photo Package', amount: 225 },
+          { name: 'Drone Photos', amount: 125 },
+        ],
+        tax: 24.50,
+        total: 374.50,
+      },
+      schedule: { startISO: start.toISOString(), endISO: end.toISOString(), timezone: 'America/New_York' },
+      wave: { viewUrl: '#' },
+      dropboxLink: null,
+    },
+  });
 });
 
 // Booking detail page — works via signed token in URL (guest-safe).
@@ -371,16 +529,32 @@ async function markBookingPaid(bookingId, { dev = false } = {}) {
   try {
     const ev = await Google.createEvent({
       summary: `📸 ${updated.customer.name} — ${updated.property.address}`,
-      description:
-        `${updated.customer.name} (${updated.customer.email}, ${updated.customer.phone})\n` +
-        `${updated.customer.brokerage || ''}\n\n` +
-        `Property: ${updated.property.address}\n` +
-        `Sqft: ${updated.property.sqft}\n` +
-        `Access: ${updated.property.accessInstructions}\n` +
-        `Seller contact: ${updated.property.sellerContact}\n\n` +
-        `Services: ${updated.quote.lineItems.map(li => li.name).join(', ')}\n` +
-        `Total: $${updated.quote.total.toFixed(2)}\n` +
+      description: [
+        `${updated.customer.name} (${updated.customer.email}, ${updated.customer.phone})`,
+        updated.customer.brokerage || '',
+        '',
+        `Property: ${updated.property.address}`,
+        `Sqft: ${updated.property.sqft}` +
+          (updated.property.listing?.bedrooms ? `  ·  ${updated.property.listing.bedrooms} bed` : '') +
+          (updated.property.listing?.bathrooms ? ` / ${updated.property.listing.bathrooms} bath` : ''),
+        updated.property.listing?.propStatus   ? `Status: ${updated.property.listing.propStatus}`    : '',
+        updated.property.listing?.mlsNumber    ? `MLS #: ${updated.property.listing.mlsNumber}`      : '',
+        updated.property.listing?.listPrice    ? `List price: ${updated.property.listing.listPrice}` : '',
+        '',
+        `Access: ${updated.property.accessInstructions}`,
+        updated.property.rooms          ? `Rooms to shoot: ${updated.property.rooms}`            : '',
+        updated.property.propReady      ? `Show-ready: ${updated.property.propReady}`            : '',
+        updated.property.lightsOn       ? `Lights on: ${updated.property.lightsOn}`              : '',
+        updated.property.hvacOn         ? `HVAC on: ${updated.property.hvacOn}`                  : '',
+        updated.property.knownIssues    ? `Known issues: ${updated.property.knownIssues}`        : '',
+        updated.property.exteriorIssues ? `Exterior: ${updated.property.exteriorIssues}`         : '',
+        updated.property.listingDeadline? `Media needed by: ${updated.property.listingDeadline}` : '',
+        '',
+        `Services: ${updated.quote.lineItems.map(li => li.name).join(', ')}`,
+        `Total: $${updated.quote.total.toFixed(2)}`,
+        '',
         `${PUBLIC_URL}/admin/bookings/${updated.id}`,
+      ].filter(l => l !== null && l !== undefined).join('\n'),
       location: updated.property.address,
       startISO: updated.schedule.startISO,
       endISO: updated.schedule.endISO,
@@ -409,10 +583,14 @@ app.post('/account/login', sameOriginPost(PUBLIC_URL), rateLimit({ max: 8 }), as
     if (req.body.website) return res.status(400).send('Spam'); // honeypot
     const email = (req.body.email || '').trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return res.render('account/login', { error: 'Enter a valid email', sent: false });
+    // returnTo: allow redirect back to a local path after sign-in (e.g. /your-info?...)
+    const rawReturn = (req.body.returnTo || '').trim();
+    const returnTo  = rawReturn.startsWith('/') ? rawReturn : '';
+    const mode      = req.body.mode === 'register' ? 'register' : 'signin';
     const token = await issueMagicLink(email);
-    const link = `${PUBLIC_URL}/account/verify?token=${token}`;
-    sendEmail(magicLinkEmail(email, link));
-    res.render('account/login', { error: null, sent: email });
+    const verifyUrl = `${PUBLIC_URL}/account/verify?token=${token}` + (returnTo ? `&return=${encodeURIComponent(returnTo)}` : '');
+    sendEmail(magicLinkEmail(email, verifyUrl, { mode }));
+    res.render('account/login', { error: null, sent: email, returnTo });
   } catch (e) { next(e); }
 });
 
@@ -421,7 +599,10 @@ app.get('/account/verify', async (req, res) => {
   const email = await consumeMagicLink(token);
   if (!email) return res.status(400).render('error', { message: 'That sign-in link is invalid or expired.' });
   setSessionCookie(res, email);
-  res.redirect('/account');
+  // Honour a local returnTo (e.g. back to /your-info after booking sign-in).
+  const rawReturn = String(req.query.return || '');
+  const dest = rawReturn.startsWith('/') ? rawReturn : '/account';
+  res.redirect(dest);
 });
 
 app.get('/account/logout', (_req, res) => { clearSessionCookie(res); res.redirect('/'); });
@@ -646,6 +827,31 @@ setInterval(async () => {
     });
   } catch (e) { console.error('[sweep]', e); }
 }, 5 * 60 * 1000).unref();
+
+// Background Wave payment poll: check all pending invoices every 3 minutes.
+// Wave's webhook may not fire on payment (free-tier limitation), so this is
+// the safety net — any paid invoice will be caught within ~3 minutes.
+setInterval(async () => {
+  if (!(await Wave.isConfigured())) return;
+  try {
+    const db = await readJSON('bookings.json', { bookings: [] });
+    const unpaid = db.bookings.filter(b => b.status === 'pending' && b.wave?.invoiceId);
+    for (const booking of unpaid) {
+      try {
+        const inv = await Wave.getInvoice(booking.wave.invoiceId);
+        if (!inv) continue;
+        const isPaid = inv.status === 'PAID' ||
+          (inv.amountDue && Number(inv.amountDue.value) === 0 && Number(inv.amountPaid?.value || 0) > 0);
+        if (isPaid) {
+          console.log(`[wave poll] booking ${booking.id} paid — confirming`);
+          await markBookingPaid(booking.id);
+        }
+      } catch (e) {
+        console.warn(`[wave poll] invoice check failed for ${booking.id}:`, e.message);
+      }
+    }
+  } catch (e) { console.error('[wave poll]', e); }
+}, 3 * 60 * 1000).unref();
 
 app.listen(PORT, () => {
   console.log(`DigFlat Booking listening on :${PORT} (public: ${PUBLIC_URL})`);
