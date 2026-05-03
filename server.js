@@ -37,6 +37,9 @@ app.set('trust proxy', 1);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Seed Google token file from env var (survives across deploys when GOOGLE_REFRESH_TOKEN is set).
+Google.initFromEnv().catch(e => console.error('[startup] google initFromEnv:', e.message));
+
 // ----- /healthz BEFORE any auth or body parsing -----
 app.get('/healthz', (_req, res) => res.type('text').send('ok'));
 
@@ -754,6 +757,15 @@ adminRouter.get('/google', async (_req, res, next) => {
 });
 adminRouter.post('/google/disconnect', async (_req, res, next) => {
   try { await Google.disconnect(); res.redirect('/admin/google'); } catch (e) { next(e); }
+});
+// Returns current refresh token so it can be saved as GOOGLE_REFRESH_TOKEN env var on the host.
+// Admin-protected. Only used during initial setup to persist the token across deploys.
+adminRouter.get('/google/refresh-token', async (_req, res, next) => {
+  try {
+    const token = await Google.getRefreshToken();
+    if (!token) return res.status(404).json({ error: 'Not connected — complete OAuth first.' });
+    res.json({ refresh_token: token, instructions: 'Save this as GOOGLE_REFRESH_TOKEN env var on Render to survive future deploys.' });
+  } catch (e) { next(e); }
 });
 // NOTE: callback is NOT under adminAuth (Google won't send Basic-Auth back).
 // We protect it by validating state below.
