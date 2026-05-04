@@ -103,8 +103,10 @@ a.step.future:hover { color: #fff; }
   background: #1a1a1a;
   border: 1px solid #2c2c2c;
   border-radius: 10px;
-  overflow: hidden;
+  /* overflow:hidden removed — clips pointer-events in WebKit/Safari */
   margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Top row: logo | center text | counter */
@@ -166,14 +168,17 @@ a.step.future:hover { color: #fff; }
   text-decoration: none;
   background: none;
   border: none;
-  padding: 0;
+  padding: 8px 4px;
+  margin: -8px -4px;
   font-family: inherit;
   cursor: default;
+  position: relative;
+  z-index: 2;
 }
 .bk-steps button.bk-step--done {
   cursor: pointer;
 }
-.bk-steps button.bk-step--done:hover { color: #aaa; }
+.bk-steps button.bk-step--done:hover { color: #bbb; }
 .bk-step--active {
   color: #3FBFD9 !important;
   font-weight: 500;
