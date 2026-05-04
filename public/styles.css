@@ -93,6 +93,91 @@ a.step.done:hover { color: #fff; }
 a.step.future { color: rgba(255,255,255,.6); text-decoration: underline; text-underline-offset: 3px; }
 a.step.future:hover { color: #fff; }
 
+/* ── Editorial booking header ── */
+.bk-wrap {
+  max-width: 1100px;
+  margin: 24px auto 0;
+  padding: 0 20px;
+}
+.bk-header {
+  background: #000;
+  border: 1px solid #1a1a1a;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+/* Top row: logo | center text | counter */
+.bk-top {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 22px 26px 18px;
+}
+.bk-center { display: flex; flex-direction: column; }
+.bk-eyebrow {
+  color: #3FBFD9;
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.bk-title {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+.bk-counter {
+  color: #555;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Progress bar */
+.bk-progress-track {
+  position: relative;
+  height: 2px;
+  background: #141414;
+}
+.bk-progress-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: #3FBFD9;
+  transition: width 0.3s ease;
+}
+
+/* Step name strip */
+.bk-steps {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 26px 18px;
+}
+.bk-steps span {
+  font-size: 11px;
+  color: #555;
+}
+.bk-step--active {
+  color: #3FBFD9 !important;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 599px) {
+  .bk-wrap { margin-top: 16px; padding: 0 12px; }
+  .bk-top  { padding: 16px 18px 14px; gap: 16px; }
+  .bk-title { font-size: 18px; }
+  .bk-counter { display: none; }
+  .bk-steps { padding: 10px 18px 14px; }
+  .bk-steps span { font-size: 10px; }
+}
+
 /* ── Service picker ── */
 .service-picker { max-width: 1100px; margin: 0 auto; padding: 0 20px 60px; }
 .picker-section { margin-top: 40px; }

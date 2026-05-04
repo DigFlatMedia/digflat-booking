@@ -1,17 +1,6 @@
 <%- include('_header', { title: 'Get Started' }) %>
 
-<div class="page-hero">
-  <h1>Let's Get Started</h1>
-  <p class="page-sub">Tell us who you are, then we'll walk you through the rest.</p>
-</div>
-
-<div class="steps">
-  <span class="step active">1. Your Info</span>
-  <span class="step future">2. Choose Services</span>
-  <span class="step future">3. Property Details</span>
-  <span class="step future">4. Pick Date &amp; Time</span>
-  <span class="step future">5. Pay &amp; Confirm</span>
-</div>
+<%- include('_nav', { currentStep: 1 }) %>
 
 <div class="your-info-layout">
 

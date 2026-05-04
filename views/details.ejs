@@ -1,16 +1,6 @@
 <%- include('_header', { title: 'Property Details' }) %>
 
-<div class="page-hero">
-  <h1>Property Details</h1>
-</div>
-
-<div class="steps">
-  <a class="step done" href="/your-info">1. Your Info</a>
-  <a class="step done" href="/?package=<%= encodeURIComponent(query.package||'') %>&addons=<%= encodeURIComponent(query.addons||'') %>&rush=<%= query.rush||'' %>">2. Choose Services</a>
-  <span class="step active">3. Property Details</span>
-  <span class="step future">4. Pick Date &amp; Time</span>
-  <span class="step future">5. Pay &amp; Confirm</span>
-</div>
+<%- include('_nav', { currentStep: 3 }) %>
 
 <form action="/book" method="GET" class="service-picker">
 
