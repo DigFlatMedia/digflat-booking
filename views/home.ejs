@@ -1,8 +1,20 @@
 <%- include('_header', { title: 'Book a Shoot' }) %>
 
-<%- include('_nav', { currentStep: 2, navTitle: 'Choose Services', navSubtitle: 'Select a photo package and any add-ons.', stepUrls: { 1: '/your-info' } }) %>
+<div class="page-hero">
+  <h1>Book Your Shoot</h1>
+  <p class="hero-sub">Real estate photography &amp; videography — Mansfield, OH and surrounding area.</p>
+</div>
 
 <form id="booking-form" action="/details" method="GET" class="service-picker">
+
+  <!-- Step indicator -->
+  <div class="steps">
+    <a class="step done" href="/your-info">1. Your Info</a>
+    <span class="step active">2. Choose Services</span>
+    <span class="step future">3. Property Details</span>
+    <span class="step future">4. Pick Date &amp; Time</span>
+    <span class="step future">5. Pay &amp; Confirm</span>
+  </div>
 
   <!-- Property type toggle -->
   <section class="picker-section">
@@ -145,5 +157,4 @@
 window.PRICING = <%- JSON.stringify(pricing) %>;
 </script>
 
-<%- include('_nav_end') %>
 <%- include('_footer') %>
