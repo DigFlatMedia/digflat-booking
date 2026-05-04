@@ -164,13 +164,13 @@ app.get('/book', async (req, res, next) => {
     const quote = calculate(pricing, { packageId, addonIds, rush, tripMiles }, config);
     const minDate = addDaysYmd(todayYmdInTz(config.schedule.timezone), Math.ceil((config.schedule.lead_time_hours || 0) / 24), config.schedule.timezone);
     const maxDate = addDaysYmd(todayYmdInTz(config.schedule.timezone), config.schedule.max_advance_days || 60, config.schedule.timezone);
-    // Contact info from session or guest cookie set in step 1.
+    // Contact info from session or guest cookie set in step 1. Allowed to be
+    // missing when the user jumps directly to this step via the nav strip;
+    // book.ejs prompts them to fill it in, and the POST handler enforces it.
     const contact = res.locals.session
       ? (await getAccount(res.locals.session.email) || { email: res.locals.session.email })
       : readContactDraft(req);
-    // If no contact info yet, bounce back to step 1.
-    if (!contact?.email) return res.redirect('/your-info');
-    res.render('book', { pricing, quote, packageId, addonIds, rush, minDate, maxDate, query: req.query, tripMiles, contact });
+    res.render('book', { pricing, quote, packageId, addonIds, rush, minDate, maxDate, query: req.query, tripMiles, contact: contact || null });
   } catch (e) { next(e); }
 });
 

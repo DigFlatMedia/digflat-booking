@@ -110,6 +110,7 @@
       </div>
 
       <!-- Booking-as card -->
+      <% if (contact && contact.email) { %>
       <div class="booking-as card">
         <div class="booking-as-info">
           <strong><%= contact.name %></strong>
@@ -120,6 +121,15 @@
         </div>
         <a href="/your-info" class="booking-as-edit">Edit</a>
       </div>
+      <% } else { %>
+      <div class="booking-as card" style="border-color:#e07b00">
+        <div class="booking-as-info">
+          <strong style="color:#e07b00">Your info is needed to book</strong>
+          <span>Add your name, email, and phone — takes about 30 seconds.</span>
+        </div>
+        <a href="/your-info" class="booking-as-edit">Add info →</a>
+      </div>
+      <% } %>
 
       <div class="policy-block">
         <h3>Payment &amp; Policies</h3>
