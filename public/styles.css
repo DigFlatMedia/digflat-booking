@@ -100,8 +100,8 @@ a.step.future:hover { color: #fff; }
   padding: 0 20px;
 }
 .bk-header {
-  background: #000;
-  border: 1px solid #1a1a1a;
+  background: #111;
+  border: 1px solid #242424;
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -144,7 +144,7 @@ a.step.future:hover { color: #fff; }
 .bk-progress-track {
   position: relative;
   height: 2px;
-  background: #141414;
+  background: #252525;
 }
 .bk-progress-fill {
   position: absolute;
