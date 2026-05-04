@@ -5,6 +5,7 @@
   var _pct      = (_cur / _total * 100).toFixed(2);
   var _counter  = String(_cur).padStart(2, '0') + ' / ' + String(_total).padStart(2, '0');
   var _names    = ['Your info', 'Choose services', 'Property', 'Date & time', 'Confirm'];
+  var _urls     = locals.stepUrls || {};
 %>
 <div class="bk-wrap">
   <div class="bk-header">
@@ -27,8 +28,16 @@
     </div>
 
     <div class="bk-steps">
-      <% _names.forEach(function(name, i) { %>
-      <span class="<%= (i + 1) === _cur ? 'bk-step--active' : '' %>"><%= name %></span>
+      <% _names.forEach(function(name, i) {
+        var n    = i + 1;
+        var url  = _urls[n];
+        var done = n < _cur;
+      %>
+        <% if (done && url) { %>
+        <a href="<%= url %>"><%= name %></a>
+        <% } else { %>
+        <span class="<%= n === _cur ? 'bk-step--active' : '' %>"><%= name %></span>
+        <% } %>
       <% }); %>
     </div>
 

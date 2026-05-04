@@ -18,7 +18,7 @@
       "sqft_max": 1500,
       "turnaround_hours": 24,
       "includes": [
-        "Full coverage — as many photos as your home needs",
+        "25+ professionally edited photos",
         "MLS-sized and full-resolution delivery",
         "Blue sky guarantee",
         "Professional HDR editing",
@@ -34,7 +34,7 @@
       "sqft_max": 3000,
       "turnaround_hours": 24,
       "includes": [
-        "Full coverage — as many photos as your home needs",
+        "30+ professionally edited photos",
         "MLS-sized and full-resolution delivery",
         "Blue sky guarantee",
         "Professional HDR editing",
@@ -51,10 +51,11 @@
       "sqft_max": null,
       "turnaround_hours": 24,
       "includes": [
-        "Full coverage — as many photos as your home needs",
+        "40+ professionally edited photos",
         "MLS-sized and full-resolution delivery",
         "Blue sky guarantee",
         "Professional HDR editing",
+        "Twilight exterior shot included",
         "Next business day delivery"
       ],
       "description": "Built for larger homes, luxury listings, and premium properties."
@@ -96,7 +97,8 @@
       "id": "addon_walkthrough_combo",
       "category": "video",
       "name": "Walkthrough Video Combo",
-      "price": 275,
+      "price": 249,
+      "discount_from_individual": 49,
       "includes": [
         "Social walkthrough (vertical + horizontal)",
         "Full cinematic walkthrough",

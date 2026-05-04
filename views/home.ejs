@@ -1,6 +1,6 @@
 <%- include('_header', { title: 'Book a Shoot' }) %>
 
-<%- include('_nav', { currentStep: 2 }) %>
+<%- include('_nav', { currentStep: 2, stepUrls: { 1: '/your-info' } }) %>
 
 <form id="booking-form" action="/details" method="GET" class="service-picker">
 
@@ -47,14 +47,16 @@
     <p class="section-sub">Add a walkthrough video to your listing — or skip to photos only.</p>
     <div class="package-grid">
       <label class="package-card">
-        <input type="radio" name="video" value="none" class="video-radio" <%= !query.video || query.video === 'none' ? 'checked' : '' %>>
+        <input type="radio" name="video" value="none" class="video-radio" <%= query.video === 'none' ? 'checked' : '' %>>
         <strong class="pkg-name">No Video</strong>
         <p class="pkg-desc">Photos only. You can always add video later.</p>
-        <span class="pkg-price">$0</span>
+        <p class="pkg-desc" style="margin-top:6px;color:var(--muted)">You can add video to your shoot anytime before delivery.</p>
+        <span class="pkg-skip">Skip — no video</span>
       </label>
       <% for (const v of pricing.add_ons.filter(a => a.category === 'video')) { %>
       <label class="package-card" data-addon-id="<%= v.id %>">
-        <input type="radio" name="video" value="<%= v.id %>" class="video-radio" <%= query.video === v.id ? 'checked' : '' %>>
+        <input type="radio" name="video" value="<%= v.id %>" class="video-radio"
+          <%= (query.video === v.id || (!query.video && v.id === 'addon_walkthrough_social')) ? 'checked' : '' %>>
         <strong class="pkg-name"><%= v.name %></strong>
         <% if (v.duration_seconds) { %><span class="pkg-range"><%= v.duration_seconds %>s</span><% } %>
         <p class="pkg-desc"><%= v.description %></p>
