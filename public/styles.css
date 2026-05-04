@@ -69,8 +69,8 @@ h3 { font-size: 1.1rem; }
   background: linear-gradient(to bottom, #1a1a1a, #2c2c2c);
   color: #fff;
 }
-.page-hero h1 { color: #fff; margin-bottom: 8px; }
-.hero-sub { color: rgba(255,255,255,.65); font-size: 1rem; }
+.page-hero h1 { color: #fff; margin-bottom: 12px; font-size: 3rem; }
+.hero-sub { color: rgba(255,255,255,.65); font-size: 1.2rem; }
 
 /* ── Steps indicator ── */
 .steps {
