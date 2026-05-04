@@ -32,9 +32,21 @@
         var n    = i + 1;
         var url  = _urls[n];
         var done = n < _cur && url;
+        var parts = done ? url.split('?') : ['', ''];
+        var path  = parts[0];
+        var qs    = parts[1] || '';
       %>
         <% if (done) { %>
-        <button type="button" class="bk-step--done" onclick="window.location.href='<%= url %>'"><%= name %></button>
+        <form action="<%= path %>" method="GET" class="bk-step-form">
+          <% qs.split('&').filter(Boolean).forEach(function(pair) {
+            var eq = pair.indexOf('=');
+            var k = eq > -1 ? pair.slice(0, eq) : pair;
+            var v = eq > -1 ? decodeURIComponent(pair.slice(eq + 1)) : '';
+          %>
+          <input type="hidden" name="<%= k %>" value="<%= v %>">
+          <% }); %>
+          <button type="submit" class="bk-step--done"><%= name %></button>
+        </form>
         <% } else { %>
         <span class="<%= n === _cur ? 'bk-step--active' : '' %>"><%= name %></span>
         <% } %>

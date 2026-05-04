@@ -169,11 +169,16 @@ a.step.future:hover { color: #fff; }
   background: none;
   border: none;
   padding: 8px 4px;
-  margin: -8px -4px;
   font-family: inherit;
   cursor: default;
   position: relative;
   z-index: 2;
+}
+/* GET-form wrapper for done-step nav: render as a flex item, no chrome */
+.bk-step-form {
+  display: contents;
+  margin: 0;
+  padding: 0;
 }
 .bk-steps button.bk-step--done {
   cursor: pointer;
