@@ -31,10 +31,10 @@
       <% _names.forEach(function(name, i) {
         var n    = i + 1;
         var url  = _urls[n];
-        var done = n < _cur;
+        var done = n < _cur && url;
       %>
-        <% if (done && url) { %>
-        <a href="<%= url %>"><%= name %></a>
+        <% if (done) { %>
+        <button type="button" class="bk-step--done" onclick="window.location.href='<%= url %>'"><%= name %></button>
         <% } else { %>
         <span class="<%= n === _cur ? 'bk-step--active' : '' %>"><%= name %></span>
         <% } %>
