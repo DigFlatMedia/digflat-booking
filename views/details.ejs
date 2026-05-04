@@ -1,7 +1,7 @@
 <%- include('_header', { title: 'Property Details' }) %>
 
 <% var _s2url = '/?package=' + encodeURIComponent(query.package||'') + '&addons=' + encodeURIComponent(query.addons||'') + '&rush=' + (query.rush||''); %>
-<%- include('_nav', { currentStep: 3, stepUrls: { 1: '/your-info', 2: _s2url } }) %>
+<%- include('_nav', { currentStep: 3, stepUrls: { 1: '/your-info', 2: _s2url, 4: '/book' } }) %>
 
 <form action="/book" method="GET" class="service-picker">
 

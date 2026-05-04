@@ -163,8 +163,8 @@ a.step.future:hover { color: #fff; }
   padding: 4px 6px;
 }
 .bk-step--upcoming { color: #b0b0b0; }
-a.bk-step--done    { color: #777; text-decoration: none; cursor: pointer; }
-a.bk-step--done:hover { color: #1a1a1a; text-decoration: underline; text-underline-offset: 3px; }
+a.bk-step--link    { color: #777; text-decoration: none; cursor: pointer; }
+a.bk-step--link:hover { color: #1a1a1a; text-decoration: underline; text-underline-offset: 3px; }
 .bk-step--active   { color: #3FBFD9; font-weight: 600; }
 
 /* Responsive */

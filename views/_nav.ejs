@@ -32,10 +32,10 @@
         var n   = i + 1;
         var url = _urls[n];
       %>
-        <% if (n < _cur && url) { %>
-        <a href="<%= url %>" class="bk-step bk-step--done"><%= name %></a>
-        <% } else if (n === _cur) { %>
+        <% if (n === _cur) { %>
         <span class="bk-step bk-step--active"><%= name %></span>
+        <% } else if (url) { %>
+        <a href="<%= url %>" class="bk-step bk-step--link"><%= name %></a>
         <% } else { %>
         <span class="bk-step bk-step--upcoming"><%= name %></span>
         <% } %>
