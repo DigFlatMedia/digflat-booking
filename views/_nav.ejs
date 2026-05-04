@@ -1,0 +1,69 @@
+<%
+  /* ── Booking chrome: top bar + sidebar + opens content div ── */
+  var _navSteps = [
+    { n: 1, label: 'Your info' },
+    { n: 2, label: 'Choose services' },
+    { n: 3, label: 'Property details' },
+    { n: 4, label: 'Date & time' },
+    { n: 5, label: 'Pay & confirm' },
+  ];
+  var _navUrls = locals.stepUrls || {};
+%>
+<div class="booking-chrome">
+
+  <!-- ── Top bar ── -->
+  <div class="booking-topbar">
+    <a href="https://digflatmedia.com" class="topbar-logo" target="_blank" rel="noopener">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 2 A10 10 0 0 1 22 12" stroke="#3FBFD9" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M22 12 A10 10 0 0 1 17 20.6" stroke="#5a6770" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M12 22 A10 10 0 0 1 2 12" stroke="#5a6770" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span class="topbar-wordmark">DIGFLAT MEDIA</span>
+    </a>
+    <div class="topbar-help">
+      <span class="topbar-help-label">Need help?&nbsp;</span><a href="tel:4195550100" class="topbar-phone">419-555-0100</a>
+    </div>
+  </div>
+
+  <!-- ── Two-column grid ── -->
+  <div class="booking-main">
+
+    <!-- Sidebar -->
+    <aside class="booking-sidebar">
+      <div class="sidebar-label">BOOK A SHOOT</div>
+      <nav class="sidebar-steps" aria-label="Booking progress">
+        <% _navSteps.forEach(function(s) {
+          var isDone   = s.n < currentStep;
+          var isActive = s.n === currentStep;
+          var href     = isDone ? (_navUrls[s.n] || '#') : null;
+        %>
+          <% if (isDone) { %>
+          <a href="<%= href %>" class="sidebar-step sidebar-step--done">
+            <span class="step-dot"></span>
+            <span class="step-label"><%= s.label %></span>
+            <span class="step-check" aria-hidden="true">✓</span>
+          </a>
+          <% } else if (isActive) { %>
+          <span class="sidebar-step sidebar-step--active" aria-current="step">
+            <span class="step-dot"></span>
+            <span class="step-label"><%= s.label %></span>
+          </span>
+          <% } else { %>
+          <span class="sidebar-step sidebar-step--upcoming">
+            <span class="step-dot"></span>
+            <span class="step-label"><%= s.label %></span>
+          </span>
+          <% } %>
+        <% }); %>
+      </nav>
+    </aside>
+
+    <!-- Content area (left open — _nav_end.ejs closes it) -->
+    <div class="booking-content">
+      <% if (locals.navTitle || locals.navSubtitle) { %>
+      <div class="content-header">
+        <% if (locals.navTitle) { %><h1 class="content-title"><%= navTitle %></h1><% } %>
+        <% if (locals.navSubtitle) { %><p class="content-subtitle"><%= navSubtitle %></p><% } %>
+      </div>
+      <% } %>

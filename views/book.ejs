@@ -1,20 +1,10 @@
 <%- include('_header', { title: 'Schedule & Details' }) %>
 
-<div class="page-hero">
-  <h1>Schedule Your Shoot</h1>
-</div>
-
 <%
-  const _sp = '?package=' + encodeURIComponent(packageId) + '&addons=' + encodeURIComponent(addonIds.join(',')) + '&rush=' + (rush ? '1' : '');
-  const _dp = _sp + Object.entries(query).filter(([k]) => !['package','addons','rush','bundle'].includes(k)).map(([k,v]) => '&' + encodeURIComponent(k) + '=' + encodeURIComponent(v||'')).join('');
+  var _sp = '?package=' + encodeURIComponent(packageId) + '&addons=' + encodeURIComponent(addonIds.join(',')) + '&rush=' + (rush ? '1' : '');
+  var _dp = _sp + Object.entries(query).filter(([k]) => !['package','addons','rush','bundle'].includes(k)).map(([k,v]) => '&' + encodeURIComponent(k) + '=' + encodeURIComponent(v||'')).join('');
 %>
-<div class="steps">
-  <a class="step done" href="/your-info">1. Your Info</a>
-  <a class="step done" href="/<%= _sp %>">2. Choose Services</a>
-  <a class="step done" href="/details<%= _dp %>">3. Property Details</a>
-  <span class="step active">4. Pick Date &amp; Time</span>
-  <span class="step future">5. Pay &amp; Confirm</span>
-</div>
+<%- include('_nav', { currentStep: 4, navTitle: 'Date & Time', navSubtitle: 'Pick a date and time that works for your shoot.', stepUrls: { 1: '/your-info', 2: '/' + _sp, 3: '/details' + _dp } }) %>
 
 <form id="book-form" action="/book" method="POST" class="book-form" novalidate>
 
@@ -163,4 +153,5 @@ window.BOOK_CONFIG = {
   apiBase:   '',
 };
 </script>
+<%- include('_nav_end') %>
 <%- include('_footer') %>
