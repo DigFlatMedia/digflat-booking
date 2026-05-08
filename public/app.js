@@ -97,8 +97,21 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFloorplanState();
     updateSummary();
   }));
+  // Video add-on section is video-only — uncheck its boxes when "No Video" is picked.
+  const videoAddonSection = document.getElementById('video-addon-section');
+  function updateVideoAddonState() {
+    if (!videoAddonSection) return;
+    const videoR = videoRadios().find(r => r.checked);
+    const isNoVideo = !videoR || videoR.value === 'none';
+    if (isNoVideo) {
+      videoAddonSection.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+    }
+  }
+  updateVideoAddonState();
+
   videoRadios().forEach(r => r.addEventListener('change', () => {
     bundleRadios().forEach(b => b.checked = false);
+    updateVideoAddonState();
     updateSummary();
   }));
   floorplanRadios().forEach(r => r.addEventListener('change', updateSummary));

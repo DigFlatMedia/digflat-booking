@@ -183,9 +183,11 @@ a.bk-step--link:hover { color: #1a1a1a; text-decoration: underline; text-underli
 .picker-section h2 { margin-bottom: 4px; }
 .section-sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
 
-/* Greyed-out section state — used for Floor Plan when "No Photo" is selected. */
+/* Greyed-out section state — used for Floor Plan when "No Photo" is selected,
+   and Video Add-Ons when "No Video" is selected. */
 .section-disabled,
-.service-picker:has(.pkg-radio[value="none"]:checked) #floorplan-section {
+.service-picker:has(.pkg-radio[value="none"]:checked) #floorplan-section,
+.service-picker:has(.video-radio[value="none"]:checked) #video-addon-section {
   opacity: 0.4;
   pointer-events: none;
   user-select: none;

@@ -99,6 +99,26 @@
     </div>
   </section>
 
+  <!-- Video Add-Ons (greyed out when "No Video" is selected) -->
+  <% var _videoAddons = pricing.add_ons.filter(a => a.category === 'video_addon'); %>
+  <% if (_videoAddons.length) { %>
+  <section class="picker-section" id="video-addon-section">
+    <h2>Video Add-Ons</h2>
+    <p class="section-sub">Available when a video package is selected.</p>
+    <div class="addon-grid">
+      <% for (const a of _videoAddons) { %>
+      <label class="addon-card" data-addon-id="<%= a.id %>">
+        <input type="checkbox" name="addons" value="<%= a.id %>" class="addon-check"
+          <%= (query.addons || '').split(',').includes(a.id) ? 'checked' : '' %>>
+        <strong class="addon-name"><%= a.name %></strong>
+        <p class="addon-desc"><%= a.description %></p>
+        <span class="addon-price">+$<%= a.price %></span>
+      </label>
+      <% } %>
+    </div>
+  </section>
+  <% } %>
+
   <!-- Drone (sits directly under Video Package) -->
   <% var _droneAddons = pricing.add_ons.filter(a => a.category === 'drone'); %>
   <% if (_droneAddons.length) { %>
@@ -152,7 +172,7 @@
   <section class="picker-section">
     <h2>Add-ons</h2>
     <div class="addon-grid">
-      <% for (const a of pricing.add_ons.filter(a => !['video', 'floor_plan', 'photo', 'drone'].includes(a.category))) { %>
+      <% for (const a of pricing.add_ons.filter(a => !['video', 'floor_plan', 'photo', 'drone', 'video_addon'].includes(a.category))) { %>
       <label class="addon-card" data-addon-id="<%= a.id %>" data-requires="<%= (a.requires || []).join(',') %>">
         <input type="checkbox" name="addons" value="<%= a.id %>" class="addon-check"
           <%= (query.addons || '').split(',').includes(a.id) ? 'checked' : '' %>>

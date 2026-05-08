@@ -150,12 +150,10 @@
     },
     {
       "id": "addon_drone_video_bundled",
-      "category": "drone",
+      "category": "video_addon",
       "name": "Drone Video Add to Walkthrough",
       "price": 100,
-      "requires": ["addon_walkthrough_full"],
-      "description": "Discounted aerial b-roll integrated into your full cinematic walkthrough.",
-      "note": "Only available when bundled with Full Cinematic Walkthrough"
+      "description": "Discounted aerial b-roll integrated into your walkthrough video."
     },
     {
       "id": "addon_floor_plan_basic",
