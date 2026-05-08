@@ -106,6 +106,19 @@
       "description": "Both video packages bundled at a discount."
     },
     {
+      "id": "addon_drone_basic",
+      "category": "drone",
+      "name": "Drone Add-on",
+      "price": 75,
+      "includes": [
+        "Aerial photos of the property",
+        "Edited and color graded",
+        "Weather permitting",
+        "Part 107 licensed pilot"
+      ],
+      "description": "Add aerial coverage to your shoot."
+    },
+    {
       "id": "addon_drone_stills",
       "category": "drone",
       "name": "Drone Photos",
