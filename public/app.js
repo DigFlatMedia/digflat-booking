@@ -76,25 +76,25 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSummary();
   }));
 
-  // Floor plan is photo-package only — grey the section out when "No Photo" is picked.
-  const floorplanSection = document.querySelector('.floorplan-radio')?.closest('.picker-section');
-  function updateFloorplanState() {
-    if (!floorplanSection) return;
+  // Photo-package-only sections (Floor Plan + Photo Add-Ons): when "No Photo"
+  // is picked, force their selections to a clean state so nothing slips through.
+  const floorplanSection  = document.querySelector('.floorplan-radio')?.closest('.picker-section');
+  const photoAddonSection = document.getElementById('photo-addon-section');
+  function updatePhotoDependentState() {
     const pkgR = pkgRadios().find(r => r.checked);
     const isNoPhoto = pkgR?.value === 'none';
-    floorplanSection.classList.toggle('section-disabled', isNoPhoto);
     if (isNoPhoto) {
-      // Force "none" so no floor-plan addon sneaks into the submission.
       const noneR = floorplanRadios().find(r => r.value === 'none');
       if (noneR) noneR.checked = true;
+      photoAddonSection?.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
     }
   }
-  updateFloorplanState();
+  updatePhotoDependentState();
 
   // Package / addon changes → clear bundle selection.
   pkgRadios().forEach(r => r.addEventListener('change', () => {
     bundleRadios().forEach(b => b.checked = false);
-    updateFloorplanState();
+    updatePhotoDependentState();
     updateSummary();
   }));
   // Video add-on section is video-only — uncheck its boxes when "No Video" is picked.
