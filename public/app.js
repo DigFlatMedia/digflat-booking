@@ -76,25 +76,25 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSummary();
   }));
 
-  // Floor plan section is photo-package only — hide when "No Photo" is picked.
+  // Floor plan is photo-package only — grey the section out when "No Photo" is picked.
   const floorplanSection = document.querySelector('.floorplan-radio')?.closest('.picker-section');
-  function updateFloorplanVisibility() {
+  function updateFloorplanState() {
     if (!floorplanSection) return;
     const pkgR = pkgRadios().find(r => r.checked);
     const isNoPhoto = pkgR?.value === 'none';
-    floorplanSection.style.display = isNoPhoto ? 'none' : '';
+    floorplanSection.classList.toggle('section-disabled', isNoPhoto);
     if (isNoPhoto) {
       // Force "none" so no floor-plan addon sneaks into the submission.
       const noneR = floorplanRadios().find(r => r.value === 'none');
       if (noneR) noneR.checked = true;
     }
   }
-  updateFloorplanVisibility();
+  updateFloorplanState();
 
   // Package / addon changes → clear bundle selection.
   pkgRadios().forEach(r => r.addEventListener('change', () => {
     bundleRadios().forEach(b => b.checked = false);
-    updateFloorplanVisibility();
+    updateFloorplanState();
     updateSummary();
   }));
   videoRadios().forEach(r => r.addEventListener('change', () => {

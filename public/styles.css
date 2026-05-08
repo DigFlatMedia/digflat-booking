@@ -183,6 +183,9 @@ a.bk-step--link:hover { color: #1a1a1a; text-decoration: underline; text-underli
 .picker-section h2 { margin-bottom: 4px; }
 .section-sub { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
 
+/* Greyed-out section state — used for Floor Plan when "No Photo" is selected. */
+.section-disabled { opacity: 0.4; pointer-events: none; user-select: none; transition: opacity .2s ease; }
+
 /* Bundles */
 .bundle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
 .bundle-card {
