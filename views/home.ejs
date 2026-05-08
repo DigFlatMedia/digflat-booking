@@ -168,25 +168,6 @@
     </div>
   </section>
 
-  <!-- Add-ons -->
-  <section class="picker-section">
-    <h2>Add-ons</h2>
-    <div class="addon-grid">
-      <% for (const a of pricing.add_ons.filter(a => !['video', 'floor_plan', 'photo', 'drone', 'video_addon'].includes(a.category))) { %>
-      <label class="addon-card" data-addon-id="<%= a.id %>" data-requires="<%= (a.requires || []).join(',') %>">
-        <input type="checkbox" name="addons" value="<%= a.id %>" class="addon-check"
-          <%= (query.addons || '').split(',').includes(a.id) ? 'checked' : '' %>>
-        <strong class="addon-name"><%= a.name %></strong>
-        <% if (a.requires && a.requires.length) { %>
-          <span class="addon-req">Requires: Full Cinematic Walkthrough</span>
-        <% } %>
-        <p class="addon-desc"><%= a.description %></p>
-        <span class="addon-price">+$<%= a.price %></span>
-      </label>
-      <% } %>
-    </div>
-  </section>
-
 
   </div><!-- /#residential-services -->
 
