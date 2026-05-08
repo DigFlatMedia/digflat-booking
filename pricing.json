@@ -63,7 +63,7 @@
   "add_ons": [
     {
       "id": "addon_walkthrough_social",
-      "category": "video",
+      "category": "photo",
       "name": "Social Walkthrough Video",
       "price": 99,
       "duration_seconds": "60-90",

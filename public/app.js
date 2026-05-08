@@ -158,8 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function calc(packageId, addonIds, rush) {
-    const pkg = pricing.photo_packages.find(p => p.id === packageId);
-    if (!pkg) return null;
+    // packageId === 'none' = no photo package; only addons.
+    const pkg = packageId === 'none'
+      ? null
+      : pricing.photo_packages.find(p => p.id === packageId);
+    if (packageId !== 'none' && !pkg) return null;
     const taxRate = (pricing.tax?.default_rate_percentage || 0) / 100;
     const rushFee = pricing.policies?.turnaround?.rush_fee ?? 75;
 
@@ -177,8 +180,10 @@ document.addEventListener('DOMContentLoaded', () => {
       lineItems.push({ name: bundleMatch.name, amount: bundleMatch.price });
       subtotal += bundleMatch.price;
     } else {
-      lineItems.push({ name: pkg.name + ' Photos', amount: pkg.price });
-      subtotal += pkg.price;
+      if (pkg) {
+        lineItems.push({ name: pkg.name + ' Photos', amount: pkg.price });
+        subtotal += pkg.price;
+      }
       for (const aid of addonIds) {
         const a = pricing.add_ons.find(x => x.id === aid);
         if (a) { lineItems.push({ name: a.name, amount: a.price }); subtotal += a.price; }
