@@ -211,20 +211,6 @@
         "PNG & JPG delivery"
       ],
       "description": "3D floor plan with furniture, colors, and textures for maximum visual impact."
-    },
-    {
-      "id": "addon_floor_plan_3d_bundle",
-      "category": "floor_plan",
-      "name": "3D Marketing Bundle",
-      "price": 179,
-      "provider": "CubiCasa",
-      "includes": [
-        "3D floor plan with full detail",
-        "3D video walkthrough render (MP4)",
-        "Furniture, colors & textures",
-        "PNG, JPG & video delivery"
-      ],
-      "description": "The complete CubiCasa package — 3D floor plan plus a room-by-room video render for premium listings."
     }
   ],
   "bundles": [

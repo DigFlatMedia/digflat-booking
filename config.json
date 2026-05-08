@@ -25,8 +25,7 @@
       "addon_floor_plan_furniture": 20,
       "addon_floor_plan_gla": 20,
       "addon_floor_plan_3d": 20,
-      "addon_floor_plan_3d_full": 20,
-      "addon_floor_plan_3d_bundle": 20
+      "addon_floor_plan_3d_full": 20
     }
   },
   "service_area": {
