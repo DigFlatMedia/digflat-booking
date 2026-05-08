@@ -120,7 +120,7 @@
     },
     {
       "id": "addon_drone_stills",
-      "category": "drone",
+      "category": "photo",
       "name": "Drone Photos",
       "price": 125,
       "photo_count": "8-10",

@@ -52,8 +52,8 @@
   <% var _photoAddons = pricing.add_ons.filter(a => a.category === 'photo'); %>
   <% if (_photoAddons.length) { %>
   <section class="picker-section">
-    <h2>Add Social Video</h2>
-    <p class="section-sub">A short cinematic walkthrough optimized for social media — pairs well with your photo package.</p>
+    <h2>Photo Add-Ons</h2>
+    <p class="section-sub">Optional extras that pair with your photo package.</p>
     <div class="addon-grid">
       <% for (const a of _photoAddons) { %>
       <label class="addon-card" data-addon-id="<%= a.id %>">
