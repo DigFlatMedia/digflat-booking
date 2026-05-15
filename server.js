@@ -23,6 +23,27 @@ import { dailySlots, todayYmdInTz, addDaysYmd } from './lib/availability.js';
 import * as Google from './lib/google.js';
 import * as Wave from './lib/wave.js';
 import { sendEmail } from './lib/resend.js';
+
+// Mirror a completed booking to DigFlat admin so it lands as a Lead.
+// Fire-and-forget: the customer email + invoice flow must not fail if the
+// webhook is down. Requires BOOKING_WEBHOOK_TOKEN env var (same value as on
+// digflatmedia.com).
+async function postToDigflatAdmin(booking) {
+  try {
+    const r = await fetch("https://digflatmedia.com/api/real-estate-booking", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.BOOKING_WEBHOOK_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(booking),
+    });
+    if (!r.ok) console.warn("digflat webhook responded", r.status, await r.text());
+  } catch (err) {
+    console.error("digflat webhook failed", err);
+  }
+}
+
 import {
   bookingConfirmedEmail, bookingPendingEmail, bookingCancelledEmail,
   deliveryEmail, magicLinkEmail, operatorBookingEmail,
@@ -370,6 +391,7 @@ app.post('/book', rateLimit({ max: 10 }), async (req, res, next) => {
     if (needsApproval) {
       // Notify operator; show holding-page to customer.
       sendEmail(operatorBookingEmail(booking, { needsApproval: true, publicUrl: PUBLIC_URL }));
+    postToDigflatAdmin(booking).catch(()=>{});
       sendEmail(bookingPendingEmail(booking, { publicUrl: PUBLIC_URL, awaitingApproval: true }));
       return res.redirect(`/booking/${token}`);
     }
@@ -403,6 +425,7 @@ app.post('/book', rateLimit({ max: 10 }), async (req, res, next) => {
     });
 
     sendEmail(operatorBookingEmail(booking, { needsApproval: false, publicUrl: PUBLIC_URL, invoiceUrl: invoice.viewUrl }));
+    postToDigflatAdmin(booking).catch(()=>{});
 
     // Redirect to Wave's hosted pay page.
     return res.redirect(invoice.viewUrl);
